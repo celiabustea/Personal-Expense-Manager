@@ -28,7 +28,8 @@
   align-items: center;
 }
 
-.budget-amount, .remaining-amount {
+.budget-amount,
+.remaining-amount {
   font-size: 0.9rem;
   color: #1e293b;
 }
@@ -61,16 +62,9 @@
   background-color: #dc2626;
 }
 
+/* Position for delete button - styling handled by main.css */
 .delete-btn {
   position: absolute;
   bottom: 15px;
   right: 15px;
-  padding: 6px;
-  color: #dc2626;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-
-.delete-btn:hover {
-  opacity: 1;
 }

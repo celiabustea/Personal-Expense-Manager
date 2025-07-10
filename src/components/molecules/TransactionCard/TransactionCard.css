@@ -56,13 +56,4 @@
   gap: 0.5rem;
 }
 
-.delete-icon {
-  color: #dc2626;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-
-.delete-icon:hover {
-  opacity: 1;
-}
+/* Delete icon styling handled by main.css unified styles */

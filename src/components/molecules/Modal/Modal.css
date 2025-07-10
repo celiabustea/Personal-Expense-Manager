@@ -21,8 +21,9 @@
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
-              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .modal-header {
@@ -71,7 +72,9 @@
 .modal-enter-active {
   opacity: 1;
   transform: scale(1);
-  transition: opacity 200ms, transform 200ms;
+  transition:
+    opacity 200ms,
+    transform 200ms;
 }
 
 .modal-exit {
@@ -82,7 +85,9 @@
 .modal-exit-active {
   opacity: 0;
   transform: scale(0.95);
-  transition: opacity 200ms, transform 200ms;
+  transition:
+    opacity 200ms,
+    transform 200ms;
 }
 
 /* Responsive adjustments */

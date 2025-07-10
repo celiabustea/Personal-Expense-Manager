@@ -35,18 +35,18 @@
 }
 
 /* Number input specific styles */
-.input[type="number"] {
+.input[type='number'] {
   -moz-appearance: textfield;
 }
 
-.input[type="number"]::-webkit-outer-spin-button,
-.input[type="number"]::-webkit-inner-spin-button {
+.input[type='number']::-webkit-outer-spin-button,
+.input[type='number']::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
 /* Datetime input specific styles */
-.input[type="datetime-local"] {
+.input[type='datetime-local'] {
   padding: 0.625rem 0.75rem;
 }
 

@@ -1,26 +1,65 @@
-# React + Vite
+# MERN Backend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a backend application built using the MERN stack (MongoDB, Express, React, Node.js). It serves as the backend for a React frontend application.
 
-Currently, two official plugins are available:
+## Project Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-# Start application
-
-First install the packages:
-
-```bash
-npm install
-# or
-npm i
+```
+mern-backend
+├── src
+│   ├── controllers       # Contains business logic for routes
+│   ├── models            # Contains Mongoose models
+│   ├── routes            # Defines application routes
+│   ├── middlewares       # Contains middleware functions
+│   ├── config            # Configuration files (e.g., database connection)
+│   └── app.js            # Entry point of the application
+├── package.json          # NPM configuration file
+├── .env                  # Environment variables
+└── README.md             # Project documentation
 ```
 
-After installment, run the development server:
+## Installation
 
-```bash
-npm run dev
+1. Clone the repository:
+
+   ```
+   git clone <repository-url>
+   ```
+
+2. Navigate to the project directory:
+
+   ```
+   cd mern-backend
+   ```
+
+3. Install the dependencies:
+
+   ```
+   npm install
+   ```
+
+4. Create a `.env` file in the root directory and add your environment variables. Example:
+   ```
+   MONGODB_URI=<your-mongodb-connection-string>
+   JWT_SECRET=<your-jwt-secret>
+   ```
+
+## Running the Application
+
+To start the server, run:
+
+```
+npm start
 ```
 
-Open http://localhost:5173/ to see the result
+The server will run on `http://localhost:5000` by default.
+
+## API Endpoints
+
+- **POST /api/users**: Create a new user
+- **POST /api/users/login**: Log in a user
+- **GET /api/users/:id**: Get user details
+
+## License
+
+This project is licensed under the MIT License.
