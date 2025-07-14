@@ -5,3 +5,5 @@ coverage/
 dist/
 build
 .env
+/.next/
+*.hot-update.js
