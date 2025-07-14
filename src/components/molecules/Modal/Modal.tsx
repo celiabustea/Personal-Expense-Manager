@@ -17,9 +17,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
       <div className="modal">
         <Heading level={2}>{title}</Heading>
         {children}
-        <div className="modal-buttons">
-          <Button type="button" label="Close" onClick={onClose} />
-        </div>
       </div>
     </div>
   );

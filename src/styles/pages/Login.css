@@ -1,3 +1,8 @@
+.login-form input::placeholder,
+.form-input::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
 /* Login page styling for PageLayout integration */
 .login-container {
   display: flex;
@@ -74,6 +79,25 @@
   outline: none;
   transition: all 0.2s ease;
   box-sizing: border-box;
+  background: #fff !important;
+  color: #1e293b !important;
+}
+
+/* Force white background for login form input fields, even with autofill */
+.login-form input,
+.form-input {
+  background: #fff !important;
+  color: #1e293b !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+  box-shadow: 0 0 0 1000px #fff inset !important;
+  -webkit-text-fill-color: #1e293b !important;
+  caret-color: #1e293b !important;
 }
 
 .form-input:focus {
@@ -217,6 +241,8 @@
   font-size: 1rem;
   margin-bottom: 0.5rem;
   box-sizing: border-box;
+  background: #fff !important;
+  color: #1e293b !important;
 }
 
 .login-form button {

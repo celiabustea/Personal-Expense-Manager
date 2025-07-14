@@ -108,19 +108,7 @@ const LoginTemplate: React.FC<LoginTemplateProps> = ({
               onChange={handleChange}
               required={isSignUp}
               disabled={loading}
-              style={{
-                width: '100%',
-                padding: '12px 14px',
-                border: '2px solid #e2e8f0',
-                borderRadius: '8px',
-                fontSize: '14px',
-                backgroundColor: '#fff',
-                color: '#1e293b',
-                outline: 'none',
-                transition: 'all 0.2s',
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-              }}
+              className="form-input"
             />
           )}
           <input
@@ -131,19 +119,7 @@ const LoginTemplate: React.FC<LoginTemplateProps> = ({
             onChange={handleChange}
             required
             disabled={loading}
-            style={{
-              width: '100%',
-              padding: '12px 14px',
-              border: '2px solid #e2e8f0',
-              borderRadius: '8px',
-              fontSize: '14px',
-              backgroundColor: '#fff',
-              color: '#1e293b',
-              outline: 'none',
-              transition: 'all 0.2s',
-              fontFamily: 'inherit',
-              boxSizing: 'border-box',
-            }}
+            className="form-input"
           />
           <input
             type="password"
@@ -153,19 +129,7 @@ const LoginTemplate: React.FC<LoginTemplateProps> = ({
             onChange={handleChange}
             required
             disabled={loading}
-            style={{
-              width: '100%',
-              padding: '12px 14px',
-              border: '2px solid #e2e8f0',
-              borderRadius: '8px',
-              fontSize: '14px',
-              backgroundColor: '#fff',
-              color: '#1e293b',
-              outline: 'none',
-              transition: 'all 0.2s',
-              fontFamily: 'inherit',
-              boxSizing: 'border-box',
-            }}
+            className="form-input"
           />
           <button
             type="submit"

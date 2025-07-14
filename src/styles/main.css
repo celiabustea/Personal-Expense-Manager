@@ -1,3 +1,28 @@
+/* Export button dark blue overrides */
+button.export-btn-csv,
+button.export-btn-json {
+  background: #1e293b !important;
+  color: #fff !important;
+  border: 2px solid #1e293b !important;
+  border-radius: 9px !important;
+  font-weight: 600 !important;
+  font-size: 0.98rem !important;
+  box-shadow: 0 2px 10px rgba(30,41,59,0.10) !important;
+  padding: 0.55rem 1.3rem !important;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  transition: all 0.18s cubic-bezier(.4,0,.2,1) !important;
+}
+button.export-btn-csv:hover,
+button.export-btn-json:hover {
+  background: #334155 !important;
+  border-color: #334155 !important;
+  color: #fff !important;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 22px rgba(30,41,59,0.18) !important;
+}
 @import '../assets/fonts/styles/fonts.css';
 
 /* Pages */

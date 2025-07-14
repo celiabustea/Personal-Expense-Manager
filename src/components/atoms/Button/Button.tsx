@@ -40,9 +40,16 @@ const Button = memo(({
     large: 'px-6 py-3 text-lg',
   };
 
+
+  // Force export buttons to use dark blue
+  const isExportBtn = className.includes('export-btn-csv') || className.includes('export-btn-json');
+  const exportStyles = isExportBtn
+    ? 'bg-[#1e293b] text-white hover:bg-[#334155] border-2 border-[#1e293b] font-semibold rounded-[10px] shadow-md px-6 py-2 text-base transition-all duration-200'
+    : '';
+
   const buttonClasses = `
     ${baseStyles}
-    ${variants[variant]}
+    ${isExportBtn ? exportStyles : variants[variant]}
     ${sizes[size]}
     ${fullWidth ? 'w-full' : ''}
     ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}

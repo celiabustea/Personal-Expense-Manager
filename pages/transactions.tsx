@@ -162,13 +162,13 @@ const Transactions = () => {
           )}
         </div>
 
-        <button
-          className="floating-add-btn"
+        <Button
+          className="add-budget-btn"
           onClick={() => setIsModalOpen(true)}
-          title="Add Transaction"
-        >
-          <Icon name="add" />
-        </button>
+          label="Add Transaction"
+          variant="primary"
+          icon={<Icon name="add" />}
+        />
 
         <Modal
           isOpen={isModalOpen}
@@ -197,17 +197,6 @@ const Transactions = () => {
                 onChange={(e) => setNewTransaction({...newTransaction, amount: e.target.value})}
                 required={true}
                 step="0.01"
-              />
-            </div>
-            <div className="form-group">
-              <label>Category</label>
-              <Input
-                type="text"
-                name="category"
-                placeholder="Enter category"
-                value={newTransaction.category}
-                onChange={(e) => setNewTransaction({...newTransaction, category: e.target.value})}
-                required={true}
               />
             </div>
             <div className="form-group">
@@ -240,27 +229,38 @@ const Transactions = () => {
                 <option value="">Select a budget</option>
                 {budgets.map((budget: any) => (
                   <option key={budget.id} value={budget.id}>
-                    {budget.name} (${budget.limit - budget.spent} remaining)
+                    {budget.name}
                   </option>
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label>
+            <div className="form-group recurring-option" style={{marginBottom: isRecurring ? 0 : '1.5rem'}}>
+              <label className="checkbox-label">
                 <input
                   type="checkbox"
                   checked={isRecurring}
                   onChange={(e) => setIsRecurring(e.target.checked)}
+                  style={{ accentColor: '#1e293b', width: '1.1em', height: '1.1em', marginRight: '0.5em' }}
                 />
-                Recurring Transaction
+                <span style={{fontWeight: 500}}>Recurring Transaction</span>
               </label>
             </div>
             {isRecurring && (
-              <div className="form-group">
-                <label>Frequency</label>
+              <div className="form-group frequency-group" style={{marginTop: '-0.5rem'}}>
+                <label style={{marginBottom: '0.25rem', fontWeight: 500}}>Frequency</label>
                 <select
                   value={recurringFrequency}
                   onChange={(e) => setRecurringFrequency(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.65rem',
+                    border: '1.5px solid #1e293b',
+                    borderRadius: '0.375rem',
+                    fontSize: '1rem',
+                    backgroundColor: '#f8fafc',
+                    color: '#1e293b',
+                    fontWeight: 500
+                  }}
                 >
                   <option value="daily">Daily</option>
                   <option value="weekly">Weekly</option>

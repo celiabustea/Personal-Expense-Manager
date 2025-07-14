@@ -29,6 +29,7 @@ interface ReportsChartsProps {
   transactionFrequency: any[];
   colors: string[];
   accentColors: string[];
+  spendingByBudget: { name: string; value: number; color?: string }[];
 }
 
 const ReportsCharts: React.FC<ReportsChartsProps> = ({
@@ -39,7 +40,8 @@ const ReportsCharts: React.FC<ReportsChartsProps> = ({
   incomeVsExpenses,
   transactionFrequency,
   colors,
-  accentColors
+  accentColors,
+  spendingByBudget
 }) => {
   // Custom tooltip component
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -60,13 +62,13 @@ const ReportsCharts: React.FC<ReportsChartsProps> = ({
 
   return (
     <div className="charts-grid">
-      {/* Spending by Category - Pie Chart */}
+      {/* Spending by Budget/Category for Selected Month - Pie Chart */}
       <div className="chart-card">
-        <h3>Spending by Category</h3>
+        <h3>Spending by Budget (Selected Month)</h3>
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
             <Pie
-              data={categoryData}
+              data={spendingByBudget}
               cx="50%"
               cy="50%"
               labelLine={false}
@@ -75,7 +77,7 @@ const ReportsCharts: React.FC<ReportsChartsProps> = ({
               fill="#8884d8"
               dataKey="value"
             >
-              {categoryData.map((entry, index) => (
+              {spendingByBudget.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
               ))}
             </Pie>

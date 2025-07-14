@@ -94,7 +94,6 @@ const Dashboard = () => {
                 <TransactionCard
                   key={transaction.id}
                   transaction={transaction}
-                  onDelete={handleDeleteTransaction}
                 />
               ))}
               {recentTransactions.length === 0 && (
@@ -121,7 +120,6 @@ const Dashboard = () => {
                 <BudgetCard
                   key={budget.id}
                   budget={budget}
-                  onDelete={handleDeleteRecurring}
                 />
               ))}
               {budgets.length === 0 && (

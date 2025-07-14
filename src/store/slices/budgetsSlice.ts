@@ -17,35 +17,7 @@ interface BudgetsState {
 }
 
 const initialState: BudgetsState = {
-  items: [
-    {
-      id: '1',
-      name: 'Food Budget',
-      category: 'Food',
-      amount: 500,
-      limit: 500,
-      currency: 'USD',
-      spent: 130.50,
-    },
-    {
-      id: '2',
-      name: 'Health Budget',
-      category: 'Health',
-      amount: 200,
-      limit: 200,
-      currency: 'USD',
-      spent: 120.00,
-    },
-    {
-      id: '3',
-      name: 'Entertainment Budget',
-      category: 'Entertainment',
-      amount: 100,
-      limit: 100,
-      currency: 'USD',
-      spent: 50.00,
-    },
-  ],
+  items: [],
   loading: false,
   error: null,
 };

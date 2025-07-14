@@ -53,7 +53,6 @@ const TransactionCard: React.FC<TransactionCardProps> = memo(({ transaction, onD
               ({recurringFrequency})
             </span>
           )}
-          <Icon name="delete" onClick={handleDelete} className="delete-icon" />
         </div>
       </div>
       <p className="transaction-amount">

@@ -2,7 +2,9 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/reports": "pages/reports.js",
   "/dashboard": "pages/dashboard.js",
   "/budgets": "pages/budgets.js",
-  "/reports": "pages/reports.js"
+  "/settings": "pages/settings.js",
+  "/transactions": "pages/transactions.js"
 }

@@ -24,7 +24,7 @@ interface Budget {
 
 interface BudgetCardProps {
   budget: Budget;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 const BudgetCard: React.FC<BudgetCardProps> = memo(({ budget, onDelete }) => {
@@ -34,13 +34,6 @@ const BudgetCard: React.FC<BudgetCardProps> = memo(({ budget, onDelete }) => {
     <div className="budget-card">
       <div className="budget-card-header">
         <Heading level={3}>{category}</Heading>
-        <Button
-          variant="ghost"
-          icon={<Icon name="delete" />}
-          onClick={() => onDelete(budget.id)}
-          className="delete-btn"
-          label="Delete"
-        />
       </div>
       <div className="budget-info">
         <p className="budget-amount">

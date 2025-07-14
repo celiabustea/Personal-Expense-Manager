@@ -56,35 +56,28 @@ const Settings = () => {
           </div>
           <div className="export-section">
             <div className="export-header">
-              <Icon name="download" size="1.5rem" />
               <h3>Export Data</h3>
             </div>
             <p className="export-description">
               Export your financial data for backup or analysis purposes. Choose between CSV or JSON format.
             </p>
-            <div className="export-buttons">
-              <div className="export-button-wrapper">
-                <Button
-                  label="Export as CSV"
-                  onClick={handleExportCSV}
-                  variant="primary"
-                  size="medium"
-                  icon={<Icon name="download" size="1rem" />}
-                  className="export-btn-csv"
-                />
-                <span className="button-description">Spreadsheet format for Excel</span>
-              </div>
-              <div className="export-button-wrapper">
-                <Button
-                  label="Export as JSON"
-                  onClick={handleExportJSON}
-                  variant="secondary"
-                  size="medium"
-                  icon={<Icon name="download" size="1rem" />}
-                  className="export-btn-json"
-                />
-                <span className="button-description">Raw data format for developers</span>
-              </div>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+              <Button
+                label="Export as CSV"
+                icon={<Icon name="download" size="1em" />}
+                onClick={handleExportCSV}
+                variant="primary"
+                size="small"
+                className="export-btn-csv"
+              />
+              <Button
+                label="Export as JSON"
+                icon={<Icon name="download" size="1em" />}
+                onClick={handleExportJSON}
+                variant="primary"
+                size="small"
+                className="export-btn-json"
+              />
             </div>
           </div>
         </div>
@@ -207,32 +200,6 @@ const Settings = () => {
           text-align: center;
           font-style: italic;
         }
-        .export-btn-csv {
-          background: #1e293b !important;
-          color: white !important;
-          border: 2px solid #1e293b !important;
-          font-weight: 600 !important;
-          transition: all 0.2s ease !important;
-        }
-        .export-btn-csv:hover {
-          background: #334155 !important;
-          border-color: #334155 !important;
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(30, 41, 59, 0.3) !important;
-        }
-        .export-btn-json {
-          background: #1e293b !important;
-          color: white !important;
-          border: 2px solid #1e293b !important;
-          font-weight: 600 !important;
-          transition: all 0.2s ease !important;
-        }
-        .export-btn-json:hover {
-          background: #334155 !important;
-          border-color: #334155 !important;
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(30, 41, 59, 0.3) !important;
-        }
         
         /* Dark mode styles */
         :global(.dark-mode) .export-section {
@@ -251,26 +218,6 @@ const Settings = () => {
         }
         :global(.dark-mode) .button-description {
           color: #94a3b8 !important;
-        }
-        :global(.dark-mode) .export-btn-csv {
-          background: #f8fafc !important;
-          color: #1e293b !important;
-          border-color: #f8fafc !important;
-        }
-        :global(.dark-mode) .export-btn-csv:hover {
-          background: #e2e8f0 !important;
-          border-color: #e2e8f0 !important;
-          color: #1e293b !important;
-        }
-        :global(.dark-mode) .export-btn-json {
-          background: #f8fafc !important;
-          color: #1e293b !important;
-          border-color: #f8fafc !important;
-        }
-        :global(.dark-mode) .export-btn-json:hover {
-          background: #e2e8f0 !important;
-          color: #1e293b !important;
-          border-color: #e2e8f0 !important;
         }
       `}</style>
     </PageLayout>
