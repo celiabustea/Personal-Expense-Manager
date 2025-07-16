@@ -90,14 +90,11 @@
   margin-bottom: 0.25rem;
 }
 
-.transaction-category {
-  font-size: 0.875rem;
-  color: #6b7280;
-  background: #f3f4f6;
-  padding: 0.125rem 0.5rem;
-  border-radius: 1rem;
-  display: inline-block;
-  margin-bottom: 0.25rem;
+.transaction-subtitle {
+  font-size: 0.8rem;
+  color: #059669;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
 }
 
 .transaction-date {
@@ -173,7 +170,8 @@
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-header {
@@ -214,7 +212,7 @@
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .form-group label {
@@ -227,7 +225,7 @@
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.65rem;
   border: 1px solid #d1d5db;
   border-radius: 4px;
   font-size: 1rem;
@@ -244,8 +242,16 @@
 .form-actions {
   display: flex;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
   justify-content: flex-end;
+  padding-top: 1rem;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  margin-bottom: -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+  flex-shrink: 0;
 }
 
 .form-actions button {
@@ -418,16 +424,175 @@
   }
   
   .modal-content {
-    padding: 1.5rem;
-    margin: 1rem;
+    padding: 1rem;
+    margin: 0.5rem;
+    max-height: 90vh;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group {
+    margin-bottom: 0.75rem;
   }
   
   .form-actions {
     flex-direction: column;
     gap: 0.75rem;
+    margin-top: 1rem;
+    flex-shrink: 0;
+    background: white;
+    padding: 1rem 0 0 0;
+    border-top: 1px solid #e5e7eb;
   }
   
   .form-actions button {
     width: 100%;
   }
+}
+
+/* Budget Impact Preview Styles */
+.budget-impact-preview {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1.5px solid #0ea5e9;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 0.5rem 0 1rem 0;
+  box-shadow: 0 2px 4px rgba(14, 165, 233, 0.1);
+}
+
+.impact-header {
+  color: #0c4a6e;
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.impact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.impact-budget,
+.impact-amount,
+.impact-new-total {
+  font-size: 0.9rem;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.impact-amount.spending {
+  color: #dc2626;
+}
+
+.impact-amount.income {
+  color: #16a34a;
+}
+
+.impact-new-total {
+  padding-top: 0.5rem;
+  border-top: 1px solid #bae6fd;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+/* Dark mode styles for budget impact preview */
+:global(.dark-mode) .budget-impact-preview {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2) !important;
+}
+
+:global(.dark-mode) .impact-header {
+  color: #93c5fd !important;
+}
+
+:global(.dark-mode) .impact-budget,
+:global(.dark-mode) .impact-amount,
+:global(.dark-mode) .impact-new-total {
+  color: #f8fafc !important;
+}
+
+:global(.dark-mode) .impact-amount.spending {
+  color: #f87171 !important;
+}
+
+:global(.dark-mode) .impact-amount.income {
+  color: #4ade80 !important;
+}
+
+:global(.dark-mode) .impact-new-total {
+  border-color: #374151 !important;
+}
+
+/* Budget dropdown styling */
+.form-group select {
+  transition: all 0.2s ease;
+}
+
+.form-group select:hover {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.form-group select:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Dark mode budget dropdown */
+:global(.dark-mode) .form-group select {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #374151 !important;
+}
+
+:global(.dark-mode) .form-group select option {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+:global(.dark-mode) .form-group select:hover {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1) !important;
+}
+
+:global(.dark-mode) .form-group select:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
+}
+
+/* Dark mode form actions */
+:global(.dark-mode) .form-actions {
+  border-color: #374151 !important;
+  background: #0f172a !important;
+}
+
+/* Dark Mode Styles for Transaction Details */
+:global(.dark-mode) .transaction-card {
+  background: #1e293b;
+  border-color: #374151;
+}
+
+:global(.dark-mode) .transaction-title {
+  color: #f1f5f9;
+}
+
+:global(.dark-mode) .transaction-subtitle {
+  color: #34d399;
+}
+
+:global(.dark-mode) .transaction-amount {
+  color: #f1f5f9;
+}
+
+:global(.dark-mode) .transaction-date {
+  color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+  /* No special dark mode overrides needed for form-actions */
 }

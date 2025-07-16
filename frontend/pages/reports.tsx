@@ -34,7 +34,7 @@ const Reports = () => {
   const transactions = useSelector((state: RootState) => state.transactions.items);
   const budgets = useSelector((state: RootState) => state.budgets.items);
 
-  const isEmpty = transactions.length === 0 && budgets.length === 0;
+  const isEmpty = transactions.length === 0;
   
 
   // Month filter state
@@ -84,7 +84,8 @@ const Reports = () => {
         // Try to match by budgetId, fallback to category
         let label = '';
         if ('budgetId' in t && t.budgetId !== undefined && t.budgetId !== null && budgetsById[String(t.budgetId)]) {
-          label = budgetsById[String(t.budgetId)].name;
+          const budget = budgetsById[String(t.budgetId)];
+          label = budget.name || budget.category || 'Budget';
         } else if (t.category) {
           label = t.category;
         } else {
@@ -99,16 +100,68 @@ const Reports = () => {
       }
     });
 
-    // Remove all hardcoded data arrays. Use empty arrays or real data only.
+    // Monthly trend data: spending over the last 6 months
     const monthlyTrendData: any[] = [];
+    const last6Months = Array.from({length: 6}, (_, i) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      return date.toISOString().slice(0, 7);
+    }).reverse();
+
+    last6Months.forEach(month => {
+      const monthTransactions = transactions.filter(t => (t.timestamp || t.date).slice(0, 7) === month);
+      const spending = monthTransactions.filter(t => t.amount < 0).reduce((sum, t) => sum + Math.abs(t.amount), 0);
+      const income = monthTransactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0);
+      
+      monthlyTrendData.push({
+        month: new Date(month + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        spending,
+        income
+      });
+    });
+
+    // Daily spending pattern for current month
     const dailySpendingData: any[] = [];
+    const currentMonthTransactions = transactions.filter(t => (t.timestamp || t.date).slice(0, 7) === selectedMonth);
+    const dailySpending: Record<string, number> = {};
+    
+    currentMonthTransactions.forEach(t => {
+      if (t.amount < 0) {
+        const day = new Date(t.timestamp || t.date).getDate();
+        const dayKey = `Day ${day}`;
+        dailySpending[dayKey] = (dailySpending[dayKey] || 0) + Math.abs(t.amount);
+      }
+    });
+
+    Object.entries(dailySpending).forEach(([day, amount]) => {
+      dailySpendingData.push({ day, amount });
+    });
+
+    // Budget performance data
     const budgetPerformanceData: any[] = budgets.map(budget => ({
       category: budget.category,
       budget: budget.amount,
       spent: budget.spent || 0,
     }));
-    const incomeVsExpenses: any[] = [];
+
+    // Income vs Expenses for current month
+    const incomeVsExpenses: any[] = [
+      { name: 'Income', value: totalIncome, color: '#10b981' },
+      { name: 'Expenses', value: totalSpending, color: '#ef4444' }
+    ];
+
+    // Transaction frequency by category
     const transactionFrequency: any[] = [];
+    const frequencyMap: Record<string, number> = {};
+    
+    transactions.forEach(t => {
+      const category = t.category || 'Other';
+      frequencyMap[category] = (frequencyMap[category] || 0) + 1;
+    });
+
+    Object.entries(frequencyMap).forEach(([category, count]) => {
+      transactionFrequency.push({ category, count });
+    });
     const colors: string[] = ['#1e293b', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
     const accentColors: string[] = ['#1e293b', '#ef4444', '#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#06b6d4'];
 
