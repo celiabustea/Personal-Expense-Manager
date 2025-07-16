@@ -1,0 +1,29 @@
+GET http://localhost:3001/users/ HTTP/1.1
+
+###
+
+GET http://localhost:3001/users/1 HTTP/1.1
+
+###
+
+POST http://localhost:3001/users/create HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Tomsadadaadadi",
+    "email": "Tasdsadadsadomi@gmail.com"
+}
+
+###
+
+PATCH http://localhost:3001/users/update/6 HTTP/1.1
+content-type: application/json
+
+{
+    "name": "BlackidyBlack",
+    "email": "BlackidyBlack@gmail.com"
+}
+
+###
+
+DELETE http://localhost:3001/users/delete/6 HTTP/1.1
