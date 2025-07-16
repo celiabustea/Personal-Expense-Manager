@@ -1,0 +1,64 @@
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1rem;
+  line-height: 1;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Icon sizes */
+.icon-small {
+  width: 0.875rem;
+  height: 0.875rem;
+  font-size: 0.875rem;
+}
+
+.icon-medium {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1rem;
+}
+
+.icon-large {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 1.25rem;
+}
+
+/* Icon colors */
+.icon-primary {
+  color: #1e293b;
+}
+
+.icon-secondary {
+  color: #64748b;
+}
+
+.icon-white {
+  color: white;
+}
+
+.icon-danger {
+  color: #dc2626;
+}
+
+/* Hover effects */
+.icon:hover {
+  opacity: 0.8;
+  transform: scale(1.1);
+}
+
+/* Disabled state */
+.icon-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-disabled:hover {
+  transform: none;
+}

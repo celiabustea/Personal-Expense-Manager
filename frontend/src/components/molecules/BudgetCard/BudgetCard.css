@@ -1,0 +1,70 @@
+.budget-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(30, 41, 59, 0.1);
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  padding-bottom: 3rem;
+}
+
+.budget-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(30, 41, 59, 0.15);
+}
+
+.budget-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.budget-info {
+  margin: 1rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.budget-amount,
+.remaining-amount {
+  font-size: 0.9rem;
+  color: #1e293b;
+}
+
+.remaining-amount {
+  font-weight: 600;
+}
+
+.progress-container {
+  width: 100%;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #1e293b;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.progress-fill.warning {
+  background-color: #f59e0b;
+}
+
+.progress-fill.danger {
+  background-color: #dc2626;
+}
+
+/* Position for delete button - styling handled by main.css */
+.delete-btn {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+}

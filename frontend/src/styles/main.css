@@ -1,0 +1,556 @@
+/* Export button dark blue overrides */
+button.export-btn-csv,
+button.export-btn-json {
+  background: #1e293b !important;
+  color: #fff !important;
+  border: 2px solid #1e293b !important;
+  border-radius: 9px !important;
+  font-weight: 600 !important;
+  font-size: 0.98rem !important;
+  box-shadow: 0 2px 10px rgba(30,41,59,0.10) !important;
+  padding: 0.55rem 1.3rem !important;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  transition: all 0.18s cubic-bezier(.4,0,.2,1) !important;
+}
+button.export-btn-csv:hover,
+button.export-btn-json:hover {
+  background: #334155 !important;
+  border-color: #334155 !important;
+  color: #fff !important;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 22px rgba(30,41,59,0.18) !important;
+}
+@import '../assets/fonts/styles/fonts.css';
+
+/* Pages */
+@import './pages/Login.css';
+@import './pages/home.css';
+@import './pages/budgets.css';
+@import './pages/transactions.css';
+@import './pages/reports.css';
+
+/* Atoms */
+@import '../components/atoms/Button/button.css';
+@import '../components/atoms/Input/input.css';
+@import '../components/atoms/Headings/heading.css';
+@import '../components/atoms/Icons/icons.css';
+
+/* Molecules */
+
+@import '../components/molecules/TransactionCard/TransactionCard.css';
+@import '../components/molecules/BudgetCard/BudgetCard.css';
+@import '../components/molecules/Modal/Modal.css';
+
+/* Organisms */
+@import '../components/organisms/NavBar/navbar.css';
+@import '../components/organisms/Sidebar/sidebar.css';
+@import '../components/organisms/TransactionsList/transactionlist.css';
+@import '../components/organisms/ReccuringTransactions/reccuringTransactions.css';
+
+/* Theme variables */
+:root {
+  --font-primary:
+    'New York', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --color-primary: #1e293b;
+  --color-secondary: #334155;
+  --color-text: #1e293b;
+  --color-text-light: #64748b;
+  --color-background: #f8fafc;
+  --color-border: #e2e8f0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-primary);
+  color: var(--color-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-background);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-primary);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+button {
+  font-family: var(--font-primary);
+}
+
+input {
+  font-family: var(--font-primary);
+}
+
+/* Dashboard layout styles */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+
+.dashboard-main {
+  flex: 1;
+  margin-left: 280px; /* Same as sidebar width */
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.dashboard-widgets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-main {
+    margin-left: 0;
+  }
+  
+  .dashboard-widgets {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dark mode global styles */
+:root.dark-mode {
+  --color-primary: #f8fafc;
+}
+
+html.dark-mode,
+body.dark-mode {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+/* Dark mode for all main containers */
+.dark-mode .dashboard-container,
+.dark-mode .transactions-container,
+.dark-mode .budgets-container,
+.dark-mode .reports-container,
+.dark-mode .settings-container {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+/* Dark mode for headers */
+.dark-mode .dashboard-header h1,
+.dark-mode .transactions-header h1,
+.dark-mode .budgets-header h1,
+.dark-mode .reports-header h1,
+.dark-mode .settings-header h1 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .dashboard-header,
+.dark-mode .transactions-header,
+.dark-mode .budgets-header,
+.dark-mode .reports-header,
+.dark-mode .settings-header {
+  border-bottom-color: #475569 !important;
+}
+
+/* Dark mode for cards */
+.dark-mode .summary-card,
+.dark-mode .dashboard-card,
+.dark-mode .transaction-item,
+.dark-mode .budget-card,
+.dark-mode .chart-card,
+.dark-mode .user-info,
+.dark-mode .dark-mode-toggle {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+/* Dark mode for sidebar */
+.dark-mode .sidebar {
+  background-color: #020617 !important;
+}
+
+.dark-mode .dashboard-main {
+  background-color: #0f172a !important;
+}
+
+/* Dark mode for form elements */
+.dark-mode input,
+.dark-mode select,
+.dark-mode textarea {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode input:focus,
+.dark-mode select:focus,
+.dark-mode textarea:focus {
+  border-color: #64748b !important;
+}
+
+/* Dark mode for buttons */
+.dark-mode button:not(.sidebar-link) {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+/* Dark mode for text elements */
+.dark-mode .label {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .value,
+.dark-mode .toggle-label {
+  color: #f8fafc !important;
+}
+
+.dark-mode .toggle-desc {
+  color: #94a3b8 !important;
+}
+
+/* Unified Delete Button Styling */
+.delete-btn,
+.delete-transaction-btn,
+.delete-icon {
+  background: none !important;
+  border: none !important;
+  color: #dc2626 !important;
+  cursor: pointer !important;
+  padding: 0.5rem !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+  opacity: 0.7 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+}
+
+.delete-btn:hover,
+.delete-transaction-btn:hover,
+.delete-icon:hover {
+  opacity: 1 !important;
+  background-color: rgba(220, 38, 38, 0.1) !important;
+  transform: scale(1.05) !important;
+}
+
+.delete-btn:active,
+.delete-transaction-btn:active,
+.delete-icon:active {
+  transform: scale(0.95) !important;
+  background-color: rgba(220, 38, 38, 0.15) !important;
+}
+
+/* Dark mode delete buttons */
+.dark-mode .delete-btn,
+.dark-mode .delete-transaction-btn,
+.dark-mode .delete-icon {
+  color: #f87171 !important;
+}
+
+.dark-mode .delete-btn:hover,
+.dark-mode .delete-transaction-btn:hover,
+.dark-mode .delete-icon:hover {
+  background-color: rgba(248, 113, 113, 0.1) !important;
+}
+
+/* Dark mode for modal */
+.dark-mode .modal-overlay {
+  background-color: rgba(15, 23, 42, 0.8) !important;
+}
+
+.dark-mode .modal {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+/* Dark mode for dashboard and reports text visibility */
+.dark-mode .dashboard-summary h3,
+.dark-mode .reports-summary h3 {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .dashboard-summary p,
+.dark-mode .reports-summary p {
+  color: #f8fafc !important;
+}
+
+.dark-mode .balance-amount {
+  color: #34d399 !important;
+}
+
+.dark-mode .spending-amount {
+  color: #f87171 !important;
+}
+
+.dark-mode .card-header h2,
+.dark-mode .budget-item h4,
+.dark-mode .transaction-info h4 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .transaction-category,
+.dark-mode .transaction-date {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .transaction-amount {
+  color: #f8fafc !important;
+}
+
+.dark-mode .transaction-amount.positive {
+  color: #34d399 !important;
+}
+
+.dark-mode .transaction-amount.negative {
+  color: #f87171 !important;
+}
+
+.dark-mode .budget-info span {
+  color: #f8fafc !important;
+}
+
+.dark-mode .empty-state p {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .view-all-btn {
+  background-color: #475569 !important;
+  color: #f8fafc !important;
+  border-color: #64748b !important;
+}
+
+.dark-mode .view-all-btn:hover {
+  background-color: #64748b !important;
+}
+
+/* Dark mode for transactions page text visibility */
+.dark-mode .transactions-summary h3 {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .transactions-summary p {
+  color: #f8fafc !important;
+}
+
+.dark-mode .transaction-title {
+  color: #f8fafc !important;
+}
+
+.dark-mode .transaction-info h4 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .transaction-category {
+  color: #94a3b8 !important;
+  background-color: #374151 !important;
+}
+
+.dark-mode .transaction-date {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .transaction-amount {
+  color: #f8fafc !important;
+}
+
+.dark-mode .transaction-amount.positive {
+  color: #34d399 !important;
+}
+
+.dark-mode .transaction-amount.negative {
+  color: #f87171 !important;
+}
+
+.dark-mode .transaction-frequency {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .add-transaction-btn {
+  background-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .add-transaction-btn:hover {
+  background-color: #64748b !important;
+}
+
+/* Dark mode for budget progress bars */
+.dark-mode .progress-container {
+  background-color: #374151 !important;
+}
+
+.dark-mode .progress-bar {
+  background-color: #64748b !important;
+}
+
+.dark-mode .progress-fill {
+  background-color: #f8fafc !important;
+}
+
+.dark-mode .progress-fill.warning {
+  background-color: #fbbf24 !important;
+}
+
+.dark-mode .progress-fill.danger {
+  background-color: #f87171 !important;
+}
+
+.dark-mode .budget-amount {
+  color: #94a3b8 !important;
+}
+
+/* Dark mode for budget cards text */
+.dark-mode .budget-card h3 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .budget-card p {
+  color: #f8fafc !important;
+}
+
+.dark-mode .spent-label {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .spent-amount {
+  color: #f8fafc !important;
+}
+
+/* Dark mode for budgets page specific text */
+.dark-mode .budgets-summary h3 {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .budgets-summary p {
+  color: #f8fafc !important;
+}
+
+.dark-mode .budgets-summary .summary-card h3 {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .budgets-summary .summary-card p {
+  color: #f8fafc !important;
+}
+
+/* Dark mode for budget card content */
+.dark-mode .budget-header h3 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .budget-header p {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .budget-progress h4 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .budget-progress p {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .budget-info span {
+  color: #f8fafc !important;
+}
+
+.dark-mode .budget-amount span {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .remaining-amount {
+  color: #f8fafc !important;
+}
+
+/* Dark mode for widget cards in budgets */
+.dark-mode .widget-card h3 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .widget-card p {
+  color: #f8fafc !important;
+}
+
+.dark-mode .widget-card span {
+  color: #94a3b8 !important;
+}
+
+/* Dark mode for "Total Budgeted" and summary stats */
+.dark-mode .budgets-container h3 {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .budgets-container p {
+  color: #f8fafc !important;
+}
+
+/* Dark mode for delete transaction button styling */
+.dark-mode .delete-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #f87171 !important;
+  padding: 0.5rem !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.dark-mode .delete-btn:hover {
+  background-color: rgba(248, 113, 113, 0.1) !important;
+  color: #fca5a5 !important;
+}
+
+.dark-mode .delete-btn svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* Dark mode for transaction actions area */
+.dark-mode .transaction-actions {
+  background: transparent !important;
+}
+
+.dark-mode .transaction-actions button {
+  background: transparent !important;
+  border: none !important;
+  color: #f87171 !important;
+}
+
+.dark-mode .transaction-actions button:hover {
+  background-color: rgba(248, 113, 113, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+/* Better contrast for transaction bars in dark mode */
+.dark-mode .progress-bar[style*="background-color: #1e293b"] {
+  background-color: #64748b !important;
+}
+
+.dark-mode .progress-bar[style*="background-color: #ef4444"] {
+  background-color: #f87171 !important;
+}

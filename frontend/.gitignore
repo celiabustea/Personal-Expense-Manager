@@ -1,0 +1,9 @@
+node_modules/
+coverage/
+.vscode/
+**/.DS_Store
+dist/
+build
+.env
+/.next/
+*.hot-update.js

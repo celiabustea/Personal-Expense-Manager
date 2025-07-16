@@ -1,0 +1,77 @@
+.transactions-list-container {
+  position: relative;
+  min-height: calc(100vh - 200px);
+  padding-bottom: 5rem;
+}
+
+.transactions-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem;
+  text-align: center;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  color: #6b7280;
+}
+
+.add-transaction-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  border-radius: 9999px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.add-transaction-button:hover {
+  transform: scale(1.05);
+}
+
+/* Loading state */
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+/* Animation for new transactions */
+.transactions-grid > * {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .transactions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .add-transaction-button {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .empty-state {
+    padding: 2rem 1rem;
+  }
+}

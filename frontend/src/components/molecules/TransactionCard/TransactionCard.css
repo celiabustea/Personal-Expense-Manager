@@ -1,0 +1,59 @@
+.transaction-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(30, 41, 59, 0.1);
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease-in-out;
+}
+
+.transaction-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(30, 41, 59, 0.15);
+}
+
+.transaction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.transaction-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.transaction-category {
+  color: #6b7280;
+  font-size: 0.9rem;
+  background: #f3f4f6;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+}
+
+.transaction-frequency {
+  font-size: 0.85rem;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+}
+
+.transaction-amount {
+  font-size: 1.25rem;
+  color: #1e293b;
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
+.transaction-date {
+  color: #6b7280;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Delete icon styling handled by main.css unified styles */
