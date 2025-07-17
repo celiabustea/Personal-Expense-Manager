@@ -159,22 +159,6 @@ Export functionality includes:
 - [ ] User authentication
 - [ ] Multi-currency support
 - [ ] Advanced filtering options
-- [ ] Savings goals tracking
-- [ ] Bill reminders
-- [ ] Mobile app version
-
-## 📊 Current Status
-
-**Frontend**: ✅ Complete with full functionality
-**Backend**: 🚧 Planned for future development
-**Database**: 🚧 Currently using Redux store (localStorage persistence planned)
-
-## 🤝 Contributing
-
-This is a personal project, but suggestions and feedback are welcome!
-
-## 📝 License
-
 This project is for educational and personal use.
 
 ---
