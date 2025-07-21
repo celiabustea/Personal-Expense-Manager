@@ -2,7 +2,6 @@ import { supabase } from '../config/supabase';
 
 async function testSupabaseConnection() {
   console.log('Testing Supabase connection...');
-  
   try {
     // Test basic connection by getting the current timestamp
     const { data, error } = await supabase.from('test').select('*').limit(1);
@@ -71,7 +70,6 @@ async function runTests() {
   await testSupabaseConfig();
   console.log('\n');
   await testSupabaseConnection();
-  
   console.log('\n✨ Test completed!');
 }
 

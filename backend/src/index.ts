@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 import eventRoutes from '@routes/eventRoutes';
+import expensesRoutes from './routes/expenses';
+import supabaseRoutes from './routes/supabase';
 // Remove TypeORM database connection for now
 // import myDataSource from '@config/database';
 
@@ -20,7 +22,10 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Route handlers
 app.use('/users', eventRoutes);
+app.use('/api', expensesRoutes);
+app.use('/api', supabaseRoutes);
 
 // Start server without TypeORM database connection
 app.listen(port, () => {

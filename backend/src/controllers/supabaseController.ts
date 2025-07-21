@@ -2,12 +2,13 @@ import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
 
 // Get all users/profiles
-export const getUsers = async (req: Request, res: Response) => {
+export const getUsers = async (req: Request, res: Response): Promise<void> => {
   try {
     const { data, error } = await supabase.from('profiles').select('*');
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
+      return;
     }
 
     res.json({ users: data });
@@ -17,7 +18,7 @@ export const getUsers = async (req: Request, res: Response) => {
 };
 
 // Get server status and database connection
-export const getStatus = async (req: Request, res: Response) => {
+export const getStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     // Test Supabase connection
     const { error } = await supabase
@@ -25,12 +26,13 @@ export const getStatus = async (req: Request, res: Response) => {
       .select('count', { count: 'exact', head: true });
 
     if (error) {
-      return res.json({
+      res.json({
         status: 'Server running',
         database: 'Connected to Supabase',
         note: 'Tables may not exist yet',
         error: error.message,
       });
+      return;
     }
 
     res.json({
