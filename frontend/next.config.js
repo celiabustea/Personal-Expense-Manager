@@ -3,6 +3,7 @@ const nextConfig = {
   reactStrictMode: false, // Disable strict mode to reduce re-renders
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
+    styledJsx: true,
   },
   images: {
     domains: [],
