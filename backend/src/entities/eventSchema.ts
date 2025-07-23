@@ -11,3 +11,18 @@ export class Users {
   @Column()
   email!: string;
 }
+
+@Entity('events')
+export class Event {
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Column()
+  title!: string;
+
+  @Column()
+  date!: string;
+
+  @Column({ nullable: true })
+  description?: string;
+}

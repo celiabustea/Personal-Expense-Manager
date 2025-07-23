@@ -1,17 +1,17 @@
 import { DataSource } from 'typeorm';
-import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import dotenv from 'dotenv';
 
-const config: PostgresConnectionOptions = {
+dotenv.config();
+
+export const AppDataSource = new DataSource({
   type: 'postgres',
-  host: process.env.HOST,
-  port: Number(process.env.PORT) || 5432,
-  username: process.env.USERNAME,
-  password: process.env.PASSWORD,
-  database: process.env.DATABASE,
-  synchronize: false,
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  synchronize: false, // true for dev, false for prod
+  logging: false,
   entities: ['src/entities/*.ts'],
-};
-
-const dataSource = new DataSource(config);
-
-export default dataSource;
+  ssl: { rejectUnauthorized: false }, // Needed for Supabase
+});
