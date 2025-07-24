@@ -37,7 +37,7 @@ async function verifyTables() {
 
   for (const table of tables) {
     try {
-      const { data, error } = await supabase.from(table.name).select('*').limit(0); // Don't fetch any rows, just check if table exists
+      const { data, error } = await supabase.from(table.name).select('*').limit(0); // !!!!!! don't fetch any rows, just check if table exists
 
       if (error) {
         console.log(`❌ Table "${table.name}": ${error.message}`);
@@ -45,7 +45,7 @@ async function verifyTables() {
       } else {
         console.log(`✅ Table "${table.name}" exists and is accessible`);
 
-        // Test insert/select to verify RLS policies work
+        // here -> test insert/select to verify RLS policies work !!!
         try {
           const testData = getTestData(table.name);
           if (testData) {
@@ -82,7 +82,7 @@ async function verifyTables() {
 }
 
 function getTestData(tableName: string) {
-  // Note: These will fail without proper authentication, which is expected
+  // Note: these will fail without proper authentication, which is expected lol
   switch (tableName) {
     case 'profiles':
       return {

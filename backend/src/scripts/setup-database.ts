@@ -6,11 +6,11 @@ async function createTables() {
   console.log('🏗️  Creating database tables for Personal Expense Manager...\n');
 
   try {
-    // Read the SQL file
+    // read the SQL file
     const sqlPath = path.join(__dirname, '../../sql/create_tables.sql');
     const sql = fs.readFileSync(sqlPath, 'utf8');
 
-    // Split the SQL into individual statements
+    // split the SQL into individual statements
     const statements = sql
       .split(';')
       .map((stmt) => stmt.trim())
@@ -18,7 +18,7 @@ async function createTables() {
 
     console.log(`📝 Found ${statements.length} SQL statements to execute\n`);
 
-    // Execute each statement
+    // execute each statement
     for (let i = 0; i < statements.length; i++) {
       const statement = statements[i] + ';';
 
@@ -30,11 +30,11 @@ async function createTables() {
         });
 
         if (error) {
-          // If exec_sql doesn't exist, try direct execution for simple statements
+          // if exec_sql doesn't exist, try direct execution for simple statements!!!
           if (error.code === 'PGRST202') {
             console.log('   Using alternative execution method...');
 
-            // For CREATE TABLE statements, we can try using the REST API
+            // for CREATE TABLE statements, we use the REST API
             if (statement.toLowerCase().includes('create table')) {
               console.log('   ⚠️  Cannot execute CREATE TABLE via REST API');
               console.log('   Please run this SQL manually in Supabase dashboard');
@@ -62,7 +62,7 @@ async function createTables() {
   }
 }
 
-// Test if tables were created successfully
+// here -> test if tables were created successfully
 async function testTables() {
   console.log('\n🔍 Testing table creation...\n');
 

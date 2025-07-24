@@ -27,6 +27,7 @@ export class Budget {
   @Column({
     type: 'enum',
     enum: TransactionCategory,
+    enumName: 'transaction_category', // explicit enum name for Postgres
   })
   category!: TransactionCategory;
 

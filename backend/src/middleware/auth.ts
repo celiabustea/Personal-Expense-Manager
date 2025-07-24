@@ -13,7 +13,7 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
     return res.status(401).json({ error: 'Malformed token' });
   }
   try {
-    // Supabase JWTs are signed with the service_role key
+    // here -> supabase JWTs are signed with the service_role key
     const decoded = jwt.verify(token, supabaseJwtSecret as string);
     (req as any).user = decoded;
     next();

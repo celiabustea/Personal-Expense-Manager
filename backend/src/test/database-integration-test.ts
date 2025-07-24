@@ -4,13 +4,13 @@ async function testDatabaseWithAuth() {
   console.log('🧪 Testing database with authentication flow...\n');
 
   try {
-    // Test 1: Check if we can create a test user (this will fail in production, but shows the flow)
+    // test 1: Check if we can create a test user (this will fail in production lol, but shows the flow)
     console.log('1. Testing user creation flow...');
 
     const testEmail = 'test@expensemanager.com';
     const testPassword = 'testpassword123';
 
-    // Try to sign up a test user
+    // try to sign up a test user
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: testEmail,
       password: testPassword,
@@ -29,7 +29,7 @@ async function testDatabaseWithAuth() {
       console.log(`   User ID: ${signUpData.user?.id}`);
     }
 
-    // Test 2: Check table structure
+    // test 2: Check table structure
     console.log('\n2. Testing table structure...');
 
     const tables = ['profiles', 'transactions', 'budgets'];
@@ -43,7 +43,7 @@ async function testDatabaseWithAuth() {
       }
     }
 
-    // Test 3: Test RLS policies (should fail without auth)
+    // test 3: Test RLS policies (should fail without auth)
     console.log('\n3. Testing Row Level Security...');
 
     const { error: profileError } = await supabase.from('profiles').insert({
@@ -58,7 +58,7 @@ async function testDatabaseWithAuth() {
       console.log('   ⚠️  RLS may not be configured correctly');
     }
 
-    // Test 4: Check triggers and functions exist
+    // test 4: Check triggers and functions exist
     console.log('\n4. Testing database functions...');
 
     try {
@@ -83,7 +83,7 @@ async function showConnectionStatus() {
     `   Key: ${process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ Environment variable' : '⚠️  Using fallback'}`,
   );
 
-  // Test basic connectivity
+  // test basic connectivity
   try {
     const { data, error } = await supabase
       .from('profiles')
