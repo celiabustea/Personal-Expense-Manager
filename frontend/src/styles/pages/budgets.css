@@ -1,3 +1,18 @@
+/* Dark mode overrides for summary and budget cards */
+:global(.dark-mode) .summary-card,
+:global(.dark-mode) .budget-card {
+  background: #1e293b;
+  color: #fff;
+  border-color: #374151;
+}
+:global(.dark-mode) .summary-card h3,
+:global(.dark-mode) .summary-card p,
+:global(.dark-mode) .budget-card h3,
+:global(.dark-mode) .budget-card p,
+:global(.dark-mode) .budget-amount,
+:global(.dark-mode) .remaining-amount {
+  color: #fff;
+}
 .budgets-container {
   padding: 2rem;
   position: relative;

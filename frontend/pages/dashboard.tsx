@@ -9,6 +9,7 @@ import {
 import dynamic from 'next/dynamic';
 import Link from "next/link";
 import { useEffect } from 'react';
+import MantraCard from '../src/components/molecules/MantraCard/MantraCard';
 
 // Dynamic imports for components
 const PageLayout = dynamic(() => import('../src/components/templates/PageLayout'), {
@@ -73,6 +74,11 @@ const Dashboard = () => {
             <Heading level={3}>Active Budgets</Heading>
             <p>{budgets.length}</p>
           </div>
+        </div>
+
+        {/* Daily Mantra Section */}
+        <div className="dashboard-mantra">
+          <MantraCard />
         </div>
 
         <div className="dashboard-grid">

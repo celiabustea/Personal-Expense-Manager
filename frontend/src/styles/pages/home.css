@@ -84,6 +84,17 @@
   margin-bottom: 2rem;
 }
 
+/* Dashboard Mantra Section */
+.dashboard-mantra {
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.dashboard-mantra .mantra-card {
+  margin: 0 auto;
+  max-width: 800px;
+}
+
 .summary-card {
   background: white;
   padding: 1.5rem;

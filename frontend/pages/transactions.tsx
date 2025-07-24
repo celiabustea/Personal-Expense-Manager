@@ -49,6 +49,104 @@ const Transactions = () => {
     date: new Date().toISOString().slice(0, 16)
   });
   const [budgetError, setBudgetError] = useState<string | null>(null);
+  
+  // Receipt upload states
+  const [selectedReceipt, setSelectedReceipt] = useState<File | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<string>('');
+
+  // Handle receipt upload and processing
+  const handleReceiptUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/heic'];
+    if (!validTypes.includes(file.type)) {
+      setUploadStatus('Error: Please select a valid image file (JPG, PNG, or HEIC)');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadStatus('Error: File size must be less than 10MB');
+      return;
+    }
+
+    setSelectedReceipt(file);
+    setUploadStatus('Processing receipt...');
+
+    try {
+      // Create FormData for the API call
+      const formData = new FormData();
+      formData.append('receipt', file);
+
+      // Call the receipt scanning API
+      const response = await fetch('/api/scan-bon', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Auto-fill form fields with extracted data
+        if (data.data.total) {
+          // Convert to negative for expense
+          const amount = data.data.total < 0 ? data.data.total : -Math.abs(data.data.total);
+          setNewTransaction(prev => ({
+            ...prev,
+            amount: amount.toString()
+          }));
+        }
+        
+        if (data.data.store) {
+          setNewTransaction(prev => ({
+            ...prev,
+            description: data.data.store
+          }));
+        }
+        
+        if (data.data.date) {
+          // Convert date to datetime-local format
+          const receiptDate = new Date(data.data.date);
+          if (!isNaN(receiptDate.getTime())) {
+            setNewTransaction(prev => ({
+              ...prev,
+              date: receiptDate.toISOString().slice(0, 16)
+            }));
+          }
+        }
+
+        setUploadStatus('✓ Receipt processed successfully! Form fields updated.');
+      } else {
+        setUploadStatus(`Error: ${data.message || 'Failed to process receipt'}`);
+      }
+    } catch (error) {
+      console.error('Receipt upload error:', error);
+      setUploadStatus('Error: Failed to process receipt. Please try again.');
+    }
+  };
+
+  // Function to close modal and reset all states
+  const closeModal = () => {
+    setNewTransaction({
+      amount: "",
+      description: "",
+      category: "",
+      budgetId: "",
+      date: new Date().toISOString().slice(0, 16)
+    });
+    setBudgetError(null);
+    setIsRecurring(false);
+    setRecurringFrequency('monthly');
+    setSelectedReceipt(null);
+    setUploadStatus('');
+    setIsModalOpen(false);
+  };
 
   const handleAddTransaction = (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,17 +208,7 @@ const Transactions = () => {
       }));
     }
 
-    setNewTransaction({
-      amount: "",
-      description: "",
-      category: "",
-      budgetId: "",
-      date: new Date().toISOString().slice(0, 16)
-    });
-    setBudgetError(null);
-    setIsRecurring(false);
-    setRecurringFrequency('monthly');
-    setIsModalOpen(false);
+    closeModal();
   };
 
   const handleDelete = (transactionId: string) => {
@@ -238,7 +326,7 @@ const Transactions = () => {
 
         <Modal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={closeModal}
           title="Add Transaction"
         >
           <form onSubmit={handleAddTransaction}>
@@ -267,6 +355,80 @@ const Transactions = () => {
                 required={true}
                 step="0.01"
               />
+            </div>
+            
+            {/* Receipt Upload Section */}
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                📸 Upload Receipt (optional)
+              </label>
+              <div style={{
+                border: '2px dashed #d1d5db',
+                borderRadius: '8px',
+                padding: '1rem',
+                textAlign: 'center',
+                marginTop: '0.5rem',
+                transition: 'all 0.2s ease'
+              }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleReceiptUpload}
+                  style={{ display: 'none' }}
+                  id="receipt-upload"
+                />
+                <label 
+                  htmlFor="receipt-upload" 
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: 500,
+                    color: '#475569',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#e2e8f0';
+                    e.currentTarget.style.borderColor = '#cbd5e1';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f8fafc';
+                    e.currentTarget.style.borderColor = '#e2e8f0';
+                  }}
+                >
+                  📁 Choose Receipt Image
+                </label>
+                {selectedReceipt && (
+                  <div style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: '#059669' }}>
+                    ✓ {selectedReceipt.name}
+                  </div>
+                )}
+                <div style={{ 
+                  marginTop: '0.5rem', 
+                  fontSize: '0.75rem', 
+                  color: '#9ca3af' 
+                }}>
+                  Supported formats: JPG, PNG, HEIC
+                </div>
+              </div>
+              {uploadStatus && (
+                <div style={{
+                  marginTop: '0.75rem',
+                  padding: '0.5rem',
+                  borderRadius: '4px',
+                  fontSize: '0.875rem',
+                  backgroundColor: uploadStatus.includes('Error') ? '#fef2f2' : '#f0f9ff',
+                  color: uploadStatus.includes('Error') ? '#dc2626' : '#0369a1',
+                  border: `1px solid ${uploadStatus.includes('Error') ? '#fecaca' : '#bae6fd'}`
+                }}>
+                  {uploadStatus}
+                </div>
+              )}
             </div>
             <div className="form-group">
               <label>Date</label>
@@ -386,7 +548,7 @@ const Transactions = () => {
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => setIsModalOpen(false)}
+                onClick={closeModal}
                 label="Cancel"
               />
             </div>

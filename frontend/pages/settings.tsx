@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useSelector } from 'react-redux';
 import { useDarkMode } from '../src/contexts/DarkModeContext';
 import Button from '../src/components/atoms/Button/Button';
 import Icon from '../src/components/atoms/Icons/Icon';
+import Modal from '../src/components/molecules/Modal';
 import { RootState } from '../src/store';
 import { exportToCSV, exportToJSON, getExportSummary } from '../src/utils/exportUtils';
 
@@ -20,6 +22,11 @@ const PageLayout = dynamic(() => import('../src/components/templates/PageLayout'
 const Settings: React.FC = () => {
   // State for export feedback
   const [exportStatus, setExportStatus] = useState<{ message: string; type: 'success' | 'error' | null }>({ message: '', type: null });
+  
+  // State for AI privacy settings
+  const [aiDataUsageConsent, setAiDataUsageConsent] = useState<boolean>(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
+  const [hasSeenPrivacyNotice, setHasSeenPrivacyNotice] = useState<boolean>(false);
   
   // Get data from Redux store
   const transactions = useSelector((state: RootState) => state.transactions.items);
@@ -38,6 +45,49 @@ const Settings: React.FC = () => {
     email: 'john.doe@example.com',
   };
   const { darkMode, toggleDarkMode } = useDarkMode();
+
+  // Load AI privacy settings from localStorage on component mount
+  React.useEffect(() => {
+    const savedConsent = localStorage.getItem('aiDataUsageConsent');
+    const savedNoticeStatus = localStorage.getItem('hasSeenPrivacyNotice');
+    
+    if (savedConsent !== null) {
+      setAiDataUsageConsent(JSON.parse(savedConsent));
+    }
+    if (savedNoticeStatus !== null) {
+      setHasSeenPrivacyNotice(JSON.parse(savedNoticeStatus));
+    }
+  }, []);
+
+  // Handle AI privacy toggle
+  const handleAiPrivacyToggle = () => {
+    // Always show the privacy modal when enabling
+    if (!aiDataUsageConsent) {
+      setShowPrivacyModal(true);
+    } else {
+      // If disabling, just turn off consent
+      setAiDataUsageConsent(false);
+      localStorage.setItem('aiDataUsageConsent', JSON.stringify(false));
+    }
+  };
+
+  // Handle privacy notice acceptance
+  const handlePrivacyAccept = () => {
+    setAiDataUsageConsent(true);
+    setHasSeenPrivacyNotice(true);
+    setShowPrivacyModal(false);
+    localStorage.setItem('aiDataUsageConsent', JSON.stringify(true));
+    localStorage.setItem('hasSeenPrivacyNotice', JSON.stringify(true));
+  };
+
+  // Handle privacy notice decline
+  const handlePrivacyDecline = () => {
+    setAiDataUsageConsent(false);
+    setHasSeenPrivacyNotice(true);
+    setShowPrivacyModal(false);
+    localStorage.setItem('aiDataUsageConsent', JSON.stringify(false));
+    localStorage.setItem('hasSeenPrivacyNotice', JSON.stringify(true));
+  };
 
   const handleExportCSV = () => {
     const result = exportToCSV(allTransactions, budgets);
@@ -86,6 +136,25 @@ const Settings: React.FC = () => {
               className="toggle-switch"
             />
             <span className="toggle-desc">{darkMode ? 'Enabled' : 'Disabled'}</span>
+          </div>
+          
+          <div className="ai-privacy-toggle">
+            <div className="toggle-row">
+              <label htmlFor="aiPrivacySwitch" className="toggle-label">AI Data Usage</label>
+              <input
+                id="aiPrivacySwitch"
+                type="checkbox"
+                checked={aiDataUsageConsent}
+                onChange={handleAiPrivacyToggle}
+                className="toggle-switch"
+              />
+              <span className="toggle-desc">
+                {aiDataUsageConsent ? 'Allowed' : 'Not Allowed'}
+              </span>
+            </div>
+            <p className="toggle-help-text">
+              Allow AI features to use your financial data for personalized insights and recommendations
+            </p>
           </div>
           <div className="export-section">
             <div className="export-header">
@@ -147,6 +216,47 @@ const Settings: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Privacy Notice Modal */}
+
+      <Modal
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+        title="AI Data Usage Privacy Notice"
+      >
+        <div className="privacy-modal-outer">
+          <div className="privacy-modal-scrollable">
+            <p className="privacy-description">
+              By enabling AI Data Usage, you consent to allowing our AI features to analyze your financial data to provide:
+            </p>
+            <ul className="privacy-features">
+              <li>Personalized spending insights and trends</li>
+              <li>Smart budget recommendations</li>
+              <li>Customized financial advice and tips</li>
+              <li>Automated categorization and analysis</li>
+              <li>Predictive spending patterns</li>
+            </ul>
+            <div className="privacy-assurance">
+              <h4>Your Privacy Protection:</h4>
+              <ul>
+                <li>Your data stays on your device and our secure servers</li>
+                <li>We never share your personal financial information with third parties</li>
+                <li>All AI processing is done with encrypted, anonymized data</li>
+                <li>You can disable this feature at any time in settings</li>
+              </ul>
+            </div>
+          </div>
+          <div className="modal-actions sticky-actions">
+            <button className="btn-accept" onClick={handlePrivacyAccept}>
+              I Consent
+            </button>
+            <button className="btn-decline" onClick={handlePrivacyDecline}>
+              I Don't Consent
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       <style jsx>{`
         .settings-container {
           padding: 2rem;
@@ -207,6 +317,22 @@ const Settings: React.FC = () => {
           padding: 2rem;
           text-align: left;
         }
+        .ai-privacy-toggle {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          background: #fff;
+          border-radius: 8px;
+          box-shadow: 0 1px 3px rgba(30,41,59,0.08);
+          border: 1px solid #e5e7eb;
+          padding: 2rem;
+          text-align: left;
+        }
+        .ai-privacy-toggle .toggle-row {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
         .toggle-label {
           font-weight: 500;
           color: #1e293b;
@@ -218,6 +344,13 @@ const Settings: React.FC = () => {
         .toggle-desc {
           color: #64748b;
           font-size: 0.95rem;
+        }
+        .toggle-help-text {
+          color: #6b7280;
+          font-size: 0.875rem;
+          margin: 0;
+          line-height: 1.4;
+          max-width: 400px;
         }
         .export-section {
           background: #fff;
@@ -307,6 +440,128 @@ const Settings: React.FC = () => {
           border: 1px solid #fecaca;
         }
 
+        /* Privacy Modal Content Styles */
+        .privacy-modal-outer {
+          display: flex;
+          flex-direction: column;
+          height: 60vh;
+          min-width: 320px;
+          max-width: 100vw;
+        }
+        .privacy-modal-scrollable {
+          flex: 1 1 auto;
+          overflow-y: auto;
+          padding-bottom: 1.5rem;
+          text-align: center;
+        }
+        .privacy-description {
+          color: #374151;
+          font-size: 1rem;
+          line-height: 1.6;
+          margin-bottom: 1rem;
+          text-align: center;
+        }
+        .privacy-features {
+          list-style: none;
+          padding: 0;
+          margin: 0 0 1rem 0;
+          background: #f8fafc;
+          border-radius: 8px;
+          padding: 1rem;
+          text-align: left;
+          flex-shrink: 0;
+        }
+        .privacy-features li {
+          padding: 0.5rem 0;
+          color: #1e293b;
+          font-weight: 500;
+          border-bottom: 1px solid #e2e8f0;
+          font-size: 0.95rem;
+        }
+        .privacy-features li:last-child {
+          border-bottom: none;
+          padding-bottom: 0;
+        }
+        .privacy-assurance {
+          background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+          border-radius: 8px;
+          padding: 1.5rem;
+          border: 2px solid #bbf7d0;
+          margin-bottom: 1rem;
+          flex-shrink: 0;
+        }
+        .privacy-assurance h4 {
+          margin: 0 0 1rem 0;
+          color: #059669;
+          font-size: 1.1rem;
+          font-weight: 700;
+          text-align: center;
+        }
+        .privacy-assurance ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          text-align: left;
+        }
+        .privacy-assurance li {
+          padding: 0.5rem 0;
+          color: #065f46;
+          font-size: 0.95rem;
+          font-weight: 500;
+        }
+        .modal-actions {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          padding: 1.25rem 0 0 0;
+          border-top: 1px solid #e5e7eb;
+          background: #fff;
+        }
+        .sticky-actions {
+          position: sticky;
+          bottom: 0;
+          left: 0;
+          z-index: 2;
+          background: #fff;
+        }
+        .btn-accept {
+          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+          color: white;
+          border: none;
+          padding: 1rem 2rem;
+          border-radius: 10px;
+          font-weight: 600;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+          min-width: 150px;
+        }
+        .btn-accept:hover {
+          background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(5, 150, 105, 0.4);
+        }
+        .btn-decline {
+          background: white;
+          color: #6b7280;
+          border: 2px solid #d1d5db;
+          padding: 1rem 2rem;
+          border-radius: 10px;
+          font-weight: 600;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          min-width: 150px;
+        }
+        .btn-decline:hover {
+          background: #f9fafb;
+          color: #374151;
+          border-color: #9ca3af;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
         
         /* Dark mode styles */
         :global(.dark-mode) .export-section {
@@ -377,6 +632,55 @@ const Settings: React.FC = () => {
         }
         :global(.dark-mode) .toggle-desc {
           color: #94a3b8 !important;
+        }
+        
+        /* Dark mode AI privacy toggle */
+        :global(.dark-mode) .ai-privacy-toggle {
+          background: #1e293b !important;
+          border-color: #374151 !important;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+        }
+        :global(.dark-mode) .toggle-help-text {
+          color: #94a3b8 !important;
+        }
+        
+        /* Dark mode modal content styles */
+        :global(.dark-mode) .modal-actions {
+          border-color: #374151 !important;
+          background: #1e293b !important;
+        }
+        :global(.dark-mode) .sticky-actions {
+          background: #1e293b !important;
+        }
+        :global(.dark-mode) .btn-decline {
+          background: #374151 !important;
+          color: #cbd5e1 !important;
+          border-color: #475569 !important;
+        }
+        :global(.dark-mode) .btn-decline:hover {
+          background: #475569 !important;
+          color: #f8fafc !important;
+          border-color: #64748b !important;
+        }
+        :global(.dark-mode) .privacy-description {
+          color: #cbd5e1 !important;
+        }
+        :global(.dark-mode) .privacy-features {
+          background: #0f172a !important;
+        }
+        :global(.dark-mode) .privacy-features li {
+          color: #f8fafc !important;
+          border-color: #374151 !important;
+        }
+        :global(.dark-mode) .privacy-assurance {
+          background: linear-gradient(135deg, #064e3b 0%, #065f46 100%) !important;
+          border-color: #047857 !important;
+        }
+        :global(.dark-mode) .privacy-assurance h4 {
+          color: #34d399 !important;
+        }
+        :global(.dark-mode) .privacy-assurance li {
+          color: #a7f3d0 !important;
         }
       `}</style>
     </PageLayout>
