@@ -19,7 +19,7 @@ interface Budget {
   category: string;
   amount: number;
   spent: number;
-  currency: string;
+  currency?: string; // Make currency optional
 }
 
 interface BudgetCardProps {
@@ -28,7 +28,7 @@ interface BudgetCardProps {
 }
 
 const BudgetCard: React.FC<BudgetCardProps> = memo(({ budget, onDelete }) => {
-  const { category, amount, spent, currency } = budget;
+  const { category, amount, spent, currency = 'USD' } = budget; // Default to USD if currency is not provided
 
   return (
     <div className="budget-card">

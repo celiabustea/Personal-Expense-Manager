@@ -56,10 +56,12 @@ const Budgets = () => {
     e.preventDefault();
     const budget = {
       id: String(Date.now()),
+      name: newBudget.category, // Add name field for compatibility
       category: newBudget.category,
       amount: parseFloat(newBudget.amount),
       currency: newBudget.currency,
       spent: 0,
+      limit: parseFloat(newBudget.amount), // Add limit field for compatibility
     };
     dispatch(addBudget(budget));
     setNewBudget({ category: '', amount: '', currency: 'USD' });

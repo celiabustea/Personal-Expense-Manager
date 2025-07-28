@@ -13,11 +13,13 @@
     "experimentalDecorators": true,
     "typeRoots": ["./node_modules/@types", "./types"],
     "baseUrl": ".",
+    "outDir": "./dist",
     "paths": {
       "@config/*": ["src/config/*"],
       "@controllers/*": ["src/controllers/*"],
       "@entities/*": ["src/entities/*"],
-      "@routes/*": ["src/routes/*"]
+      "@routes/*": ["src/routes/*"],
+      "@types/*": ["src/types/*"]
     }
   },
   "include": ["src/**/*", "types/**/*"]

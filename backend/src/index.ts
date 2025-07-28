@@ -1,11 +1,16 @@
-
 import 'reflect-metadata';
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+
+// Load .env file from the backend directory
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 import express from 'express';
 import cors from 'cors';
 import eventRoutes from '@routes/eventRoutes';
 import aiRoutes from '@routes/aiRoutes';
+import budgetTestRoutes from '@routes/budgetTestRoutes';
+import authRoutes from '@routes/authRoutesFixed';
+import transactionRoutes from '@routes/transactionRoutes';
 import { AppDataSource } from '@config/database';
 import { supabase } from '@config/supabase';
 
@@ -39,5 +44,8 @@ AppDataSource
 
 app.use('/users', eventRoutes);
 app.use('/ai', aiRoutes);
+app.use('/budgets', budgetTestRoutes);
+app.use('/auth', authRoutes);
+app.use('/transactions', transactionRoutes);
 
   
