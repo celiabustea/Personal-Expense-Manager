@@ -3,11 +3,20 @@ import 'reflect-metadata';
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
+import cors from 'cors';
 import eventRoutes from '@routes/eventRoutes';
+import aiRoutes from '@routes/aiRoutes';
 import { AppDataSource } from '@config/database';
 import { supabase } from '@config/supabase';
 
 const app = express();
+
+// Enable CORS for frontend requests
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true
+}));
+
 app.use(express.json());
 
 const port = process.env.PORT || 5000;
@@ -29,5 +38,6 @@ AppDataSource
   });
 
 app.use('/users', eventRoutes);
+app.use('/ai', aiRoutes);
 
   
