@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { addTransaction, deleteTransaction, addRecurringTransaction, deleteRecurringTransaction } from '../src/store/slices/transactionsSlice';
 import { updateBudgetSpent } from '../src/store/slices/budgetsSlice';
 import { wouldExceedBudget, getBudgetOverflowInfo } from '../src/utils/budgetUtils';
+import Tesseract from 'tesseract.js';
 
 // Dynamic imports for components
 const Button = dynamic(() => import("../src/components/atoms/Button/Button"));
@@ -56,80 +57,112 @@ const Transactions = () => {
 
   // Handle receipt upload and processing
   const handleReceiptUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    // Validate file type
-    const validTypes = ['image/jpeg', 'image/png', 'image/heic'];
-    if (!validTypes.includes(file.type)) {
-      setUploadStatus('Error: Please select a valid image file (JPG, PNG, or HEIC)');
-      return;
+  // Validate file type
+  const validTypes = ['image/jpeg', 'image/png', 'image/heic'];
+  if (!validTypes.includes(file.type)) {
+    setUploadStatus('Error: Please select a valid image file (JPG, PNG, or HEIC)');
+    return;
+  }
+
+  // Validate file size (max 10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    setUploadStatus('Error: File size must be less than 10MB');
+    return;
+  }
+
+  setSelectedReceipt(file);
+  setUploadStatus('Processing receipt...');
+
+  try {
+    const imageUrl = URL.createObjectURL(file);
+    const { data: { text } } = await Tesseract.recognize(imageUrl, 'eng', {
+      logger: m => setUploadStatus(`Processing: ${Math.round((m.progress || 0) * 100)}%`)
+    });
+    // Extract store name (likely first non-empty, non-date/total line)
+  const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+let storeName = '';
+for (let i = 0; i < Math.min(7, lines.length); i++) {
+  const line = lines[i];
+  // Skip lines that look like dates, times, totals, numbers, or are too short
+  if (
+    /\d{2,4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,4}/.test(line) || // date
+    /\d{1,2}:\d{2}/.test(line) || // time
+    /total/i.test(line) ||
+    /^[\d\.,]+$/.test(line) || // just numbers
+    line.length < 4 ||
+    /profi\s*super/i.test(line) // skip logo/brand line
+  ) {
+    continue;
+  }
+  // Prefer lines with uppercase and location-like words
+  if (line === line.toUpperCase() && /[A-Z]{3,}/.test(line)) {
+    storeName = line;
+    break;
+  }
+}
+if (!storeName) {
+  // fallback: first non-skipped line
+  for (let i = 0; i < Math.min(7, lines.length); i++) {
+    const line = lines[i];
+    if (
+      /\d{2,4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,4}/.test(line) ||
+      /\d{1,2}:\d{2}/.test(line) ||
+      /total/i.test(line) ||
+      /^[\d\.,]+$/.test(line) ||
+      line.length < 4
+    ) {
+      continue;
     }
+    storeName = line;
+    break;
+  }
+}
+if (storeName) {
+  setNewTransaction(prev => ({
+    ...prev,
+    description: storeName
+  }));
+}
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setUploadStatus('Error: File size must be less than 10MB');
-      return;
-    }
+    // Simple parsing: try to find a total and a date in the text
+    const totalMatch = text.match(/total\s*[:\-]?\s*\$?([0-9.,]+)/i);
+    const dateMatch = text.match(/(\d{4}[-\/]\d{2}[-\/]\d{2})|(\d{2}[-\/]\d{2}[-\/]\d{4})/);
 
-    setSelectedReceipt(file);
-    setUploadStatus('Processing receipt...');
-
-    try {
-      // Create FormData for the API call
-      const formData = new FormData();
-      formData.append('receipt', file);
-
-      // Call the receipt scanning API
-      const response = await fetch('/api/scan-bon', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    if (totalMatch) {
+      let amountStr = totalMatch[1].replace(/\s/g, '');
+      // If it uses comma as decimal and no period, replace comma with period
+      if (amountStr.includes(',') && !amountStr.includes('.')) {
+        amountStr = amountStr.replace(',', '.');
       }
-
-      const data = await response.json();
-      
-      if (data.success) {
-        // Auto-fill form fields with extracted data
-        if (data.data.total) {
-          // Convert to negative for expense
-          const amount = data.data.total < 0 ? data.data.total : -Math.abs(data.data.total);
-          setNewTransaction(prev => ({
-            ...prev,
-            amount: amount.toString()
-          }));
-        }
-        
-        if (data.data.store) {
-          setNewTransaction(prev => ({
-            ...prev,
-            description: data.data.store
-          }));
-        }
-        
-        if (data.data.date) {
-          // Convert date to datetime-local format
-          const receiptDate = new Date(data.data.date);
-          if (!isNaN(receiptDate.getTime())) {
-            setNewTransaction(prev => ({
-              ...prev,
-              date: receiptDate.toISOString().slice(0, 16)
-            }));
-          }
-        }
-
-        setUploadStatus('✓ Receipt processed successfully! Form fields updated.');
-      } else {
-        setUploadStatus(`Error: ${data.message || 'Failed to process receipt'}`);
+      // Remove thousands separators if both are present
+      if (amountStr.match(/[\.,]\d{2}$/)) {
+        amountStr = amountStr.replace(/(?<=\d)[,.](?=\d{3}\b)/g, '');
       }
-    } catch (error) {
-      console.error('Receipt upload error:', error);
-      setUploadStatus('Error: Failed to process receipt. Please try again.');
+      const parsedAmount = parseFloat(amountStr);
+      setNewTransaction(prev => ({
+        ...prev,
+        amount: (-Math.abs(parsedAmount)).toString()
+      }));
     }
-  };
+    if (dateMatch) {
+      const receiptDate = new Date(dateMatch[0]);
+      if (!isNaN(receiptDate.getTime())) {
+        setNewTransaction(prev => ({
+          ...prev,
+          date: receiptDate.toISOString().slice(0, 16)
+        }));
+      }
+    }
+
+    setUploadStatus('✓ Receipt processed! Please check and complete the fields.');
+  } catch (error) {
+    console.error('Receipt OCR error:', error);
+    setUploadStatus('Error: Failed to process receipt. Please try again.');
+  }
+};
 
   // Function to close modal and reset all states
   const closeModal = () => {
@@ -414,6 +447,14 @@ const Transactions = () => {
                   color: '#9ca3af' 
                 }}>
                   Supported formats: JPG, PNG, HEIC
+                </div>
+                <div style={{
+                  marginTop: '0.25rem',
+                  fontSize: '0.8rem',
+                  color: '#6b7280',
+                  fontStyle: 'italic'
+                }}>
+                  This works best with digital receipts.
                 </div>
               </div>
               {uploadStatus && (
