@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { addBudget, deleteBudget } from '../src/store/slices/budgetsSlice';
-import { selectBudgets } from '../src/store';
+import { deleteBudget, createBudgetInSupabase } from '../src/store/slices/budgetsSlice';
+import { selectBudgets, AppDispatch } from '../src/store';
+import { useAuth } from '../src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 
 // Dynamic imports for components
@@ -23,7 +24,8 @@ const PageLayout = dynamic(() => import('../src/components/templates/PageLayout'
 });
 
 const Budgets = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+  const { user } = useAuth(); // Get current user for Supabase operations
   const budgets = useSelector(selectBudgets);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newBudget, setNewBudget] = useState({
@@ -52,18 +54,31 @@ const Budgets = () => {
     });
   };
 
-  const handleAddBudget = (e: React.FormEvent) => {
+  const handleAddBudget = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user?.id) {
+      console.error('❌ User not authenticated');
+      alert('Please log in to add budgets');
+      return;
+    }
+
     const budget = {
-      id: String(Date.now()),
+      name: newBudget.category,
       category: newBudget.category,
       amount: parseFloat(newBudget.amount),
       currency: newBudget.currency,
-      spent: 0,
+      limit: parseFloat(newBudget.amount),
     };
-    dispatch(addBudget(budget));
-    setNewBudget({ category: '', amount: '', currency: 'USD' });
-    setIsModalOpen(false);
+    
+    try {
+      await dispatch(createBudgetInSupabase({ budget, userId: user.id }));
+      setNewBudget({ category: '', amount: '', currency: 'USD' });
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('❌ Failed to add budget:', error);
+      alert('Failed to add budget: ' + error);
+    }
   };
 
   return (

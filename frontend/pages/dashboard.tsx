@@ -8,7 +8,8 @@ import {
 } from '../src/store';
 import dynamic from 'next/dynamic';
 import Link from "next/link";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import MantraCard from '../src/components/molecules/MantraCard/MantraCard';
 
 // Dynamic imports for components
@@ -30,8 +31,11 @@ const TransactionCard = dynamic(() => import('../src/components/molecules/Transa
 const BudgetCard = dynamic(() => import('../src/components/molecules/BudgetCard/BudgetCard'));
 
 const Dashboard = () => {
+  const [isHydrated, setIsHydrated] = useState(false);
+  
   useEffect(() => {
-    // Component mounted
+    // Set hydrated to true after component mounts on client
+    setIsHydrated(true);
   }, []);
   
   // Use memoized selectors for better performance
@@ -56,6 +60,7 @@ const Dashboard = () => {
   };
 
   return (
+    <ProtectedRoute>
     <PageLayout>
       <div className="dashboard-container">
         <div className="dashboard-header">
@@ -64,15 +69,19 @@ const Dashboard = () => {
         <div className="dashboard-summary">
           <div className="summary-card">
             <Heading level={3}>Total Balance</Heading>
-            <p className="balance-amount">{formatCurrency(totalBalance)}</p>
+            <p className="balance-amount">
+              {isHydrated ? formatCurrency(totalBalance) : formatCurrency(0)}
+            </p>
           </div>
           <div className="summary-card">
             <Heading level={3}>Monthly Spending</Heading>
-            <p className="spending-amount">{formatCurrency(monthlySpending)}</p>
+            <p className="spending-amount">
+              {isHydrated ? formatCurrency(monthlySpending) : formatCurrency(0)}
+            </p>
           </div>
           <div className="summary-card">
             <Heading level={3}>Active Budgets</Heading>
-            <p>{budgets.length}</p>
+            <p>{isHydrated ? budgets.length : 0}</p>
           </div>
         </div>
 
@@ -96,14 +105,17 @@ const Dashboard = () => {
               </Link>
             </div>
             <div className="transactions-list">
-              {recentTransactions.map(transaction => (
+              {isHydrated ? recentTransactions.map(transaction => (
                 <TransactionCard
                   key={transaction.id}
                   transaction={transaction}
                 />
-              ))}
-              {recentTransactions.length === 0 && (
+              )) : null}
+              {isHydrated && recentTransactions.length === 0 && (
                 <p className="empty-state">No recent transactions</p>
+              )}
+              {!isHydrated && (
+                <p className="empty-state">Loading transactions...</p>
               )}
             </div>
           </div>
@@ -122,20 +134,24 @@ const Dashboard = () => {
               </Link>
             </div>
             <div className="budget-list">
-              {budgets.map((budget) => (
+              {isHydrated ? budgets.map((budget) => (
                 <BudgetCard
                   key={budget.id}
                   budget={budget}
                 />
-              ))}
-              {budgets.length === 0 && (
+              )) : null}
+              {isHydrated && budgets.length === 0 && (
                 <p className="empty-state">No budgets created yet</p>
+              )}
+              {!isHydrated && (
+                <p className="empty-state">Loading budgets...</p>
               )}
             </div>
           </div>
         </div>
       </div>
     </PageLayout>
+    </ProtectedRoute>
   );
 };
 

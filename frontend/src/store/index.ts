@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { createSelector } from '@reduxjs/toolkit';
 import budgetsReducer from './slices/budgetsSlice';
 import transactionsReducer from './slices/transactionsSlice';
+import { loadStateFromLocalStorage, saveStateToLocalStorage } from '../utils/localStorage';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,60 @@ export const store = configureStore({
     }),
 });
 
+// Function to load user-specific state (called after authentication)
+export const loadUserState = (userId: string) => {
+  if (typeof window !== 'undefined') {
+    const persistedState = loadStateFromLocalStorage(userId);
+    if (persistedState) {
+      // Manually dispatch actions to restore user-specific state
+      if (persistedState.transactions?.items) {
+        store.dispatch({ type: 'transactions/setTransactions', payload: persistedState.transactions.items });
+      }
+      if (persistedState.budgets?.items) {
+        store.dispatch({ type: 'budgets/setBudgets', payload: persistedState.budgets.items });
+      }
+    }
+  }
+};
+
+// Function to clear user state (called on logout)
+export const clearUserState = (userId: string) => {
+  // Immediately clear Redux store to initial state
+  store.dispatch({ type: 'transactions/setTransactions', payload: [] });
+  store.dispatch({ type: 'budgets/setBudgets', payload: [] });
+  
+  // Clear localStorage for this user
+  if (typeof window !== 'undefined') {
+    const { clearStateFromLocalStorage } = require('../utils/localStorage');
+    clearStateFromLocalStorage(userId);
+  }
+};
+
+// Function to clear ALL user states (for complete reset)
+export const clearAllUserStates = () => {
+  // Immediately clear Redux store
+  store.dispatch({ type: 'transactions/setTransactions', payload: [] });
+  store.dispatch({ type: 'budgets/setBudgets', payload: [] });
+  
+  // Clear all localStorage data
+  if (typeof window !== 'undefined') {
+    const { clearStateFromLocalStorage } = require('../utils/localStorage');
+    clearStateFromLocalStorage(); // Called without userId clears all
+  }
+};
+
+// Setup localStorage persistence for a specific user
+export const setupUserPersistence = (userId: string) => {
+  if (typeof window !== 'undefined') {
+    // Subscribe to store changes and save to user-specific localStorage
+    const unsubscribe = store.subscribe(() => {
+      saveStateToLocalStorage(store.getState(), userId);
+    });
+    
+    return unsubscribe; // Return unsubscribe function for cleanup
+  }
+};
+
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
@@ -28,47 +83,33 @@ export const selectBudgets = (state: RootState) => state.budgets.items;
 export const selectAllTransactions = createSelector(
   [selectTransactions, selectRecurringTransactions],
   (transactions, recurring) => {
-    console.time('🔄 selectAllTransactions');
-    const result = [...transactions, ...recurring];
-    console.timeEnd('🔄 selectAllTransactions');
-    console.log(`🔄 selectAllTransactions: ${result.length} transactions`);
-    return result;
+    // Only create new array if data has actually changed
+    return transactions.concat(recurring);
   }
 );
 
 export const selectRecentTransactions = createSelector(
   [selectAllTransactions],
   (allTransactions) => {
-    console.time('🔄 selectRecentTransactions');
-    const result = [...allTransactions]
+    return allTransactions
+      .slice() // Create copy only for sorting
       .sort((a, b) => new Date(b.timestamp || b.date).getTime() - new Date(a.timestamp || a.date).getTime())
       .slice(0, 5);
-    console.timeEnd('🔄 selectRecentTransactions');
-    console.log(`🔄 selectRecentTransactions: ${result.length} recent transactions`);
-    return result;
   }
 );
 
 export const selectTotalBalance = createSelector(
   [selectAllTransactions],
   (transactions) => {
-    console.time('🔄 selectTotalBalance');
-    const result = transactions.reduce((sum, trans) => sum + trans.amount, 0);
-    console.timeEnd('🔄 selectTotalBalance');
-    console.log(`🔄 selectTotalBalance: $${result.toFixed(2)}`);
-    return result;
+    return transactions.reduce((sum, trans) => sum + trans.amount, 0);
   }
 );
 
 export const selectMonthlySpending = createSelector(
   [selectAllTransactions],
   (transactions) => {
-    console.time('🔄 selectMonthlySpending');
-    const result = transactions
+    return transactions
       .filter(trans => trans.amount < 0)
       .reduce((sum, trans) => sum + Math.abs(trans.amount), 0);
-    console.timeEnd('🔄 selectMonthlySpending');
-    console.log(`🔄 selectMonthlySpending: $${result.toFixed(2)}`);
-    return result;
   }
 );

@@ -11,7 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@supabase/supabase-js": "^2.52.0",
+    "@supabase/supabase-js": "^2.53.0",
+    "@types/multer": "^2.0.0",
     "axios": "^1.11.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -21,8 +22,11 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
+    "multer": "^2.0.2",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
+    "sharp": "^0.34.3",
+    "tesseract.js": "^6.0.1",
     "typeorm": "^0.3.25"
   },
   "devDependencies": {
@@ -39,6 +43,7 @@
     "nodemon": "^3.1.10",
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
   },
