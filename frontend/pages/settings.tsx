@@ -8,6 +8,8 @@ import Icon from '../src/components/atoms/Icons/Icon';
 import Modal from '../src/components/molecules/Modal';
 import { RootState } from '../src/store';
 import { exportToCSV, exportToJSON, getExportSummary } from '../src/utils/exportUtils';
+import { BudgetAPI } from '@/utils/apiService';
+import Budgets from './budgets';
 
 // Type definition for user data
 interface User {
@@ -36,8 +38,11 @@ const Settings: React.FC = () => {
   // Combine all transactions
   const allTransactions = [...transactions, ...recurringTransactions];
   
-  // Get export summary
-  const exportSummary = getExportSummary(allTransactions, budgets);
+  // Get export summary - ensure currency is defined
+  const exportSummary = getExportSummary(allTransactions, budgets.map(budget => ({
+    ...budget,
+    currency: budget.currency || 'USD' // Ensure currency is always a string
+  })));
 
   // Placeholder user data - TODO: Replace with actual user data from context/API
   const user: User = {
@@ -90,7 +95,10 @@ const Settings: React.FC = () => {
   };
 
   const handleExportCSV = () => {
-    const result = exportToCSV(allTransactions, budgets);
+    const result = exportToCSV(allTransactions, budgets.map(budget => ({
+      ...budget,
+      currency: budget.currency || 'USD'
+    })));
     setExportStatus({ 
       message: result.message, 
       type: result.success ? 'success' : 'error' 
@@ -100,7 +108,10 @@ const Settings: React.FC = () => {
   };
 
   const handleExportJSON = () => {
-    const result = exportToJSON(allTransactions, budgets);
+    const result = exportToJSON(allTransactions, budgets.map(budget => ({
+      ...budget,
+      currency: budget.currency || 'USD'
+    })));
     setExportStatus({ 
       message: result.message, 
       type: result.success ? 'success' : 'error' 

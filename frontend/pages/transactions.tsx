@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { selectAllTransactions, selectTransactions, selectRecurringTransactions, selectBudgets } from '../src/store';
+import { selectAllTransactions, selectTransactions, selectRecurringTransactions, selectBudgets, AppDispatch } from '../src/store';
 import dynamic from 'next/dynamic';
-import { addTransaction, deleteTransaction, addRecurringTransaction, deleteRecurringTransaction } from '../src/store/slices/transactionsSlice';
+import { addTransaction, deleteTransaction, addRecurringTransaction, deleteRecurringTransaction, addTransactionToSupabase, deleteTransactionFromSupabaseThunk } from '../src/store/slices/transactionsSlice';
 import { updateBudgetSpent } from '../src/store/slices/budgetsSlice';
 import { wouldExceedBudget, getBudgetOverflowInfo } from '../src/utils/budgetUtils';
+import { useAuth } from '../src/contexts/AuthContext';
 
 // Dynamic imports for components
 const Button = dynamic(() => import("../src/components/atoms/Button/Button"));
@@ -24,7 +25,8 @@ const PageLayout = dynamic(() => import("../src/components/templates/PageLayout"
 });
 
 const Transactions = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>(); // Type the dispatch correctly
+  const { user } = useAuth(); // Get current user for Supabase operations
   const allTransactions = useSelector(selectAllTransactions);
   const transactions = useSelector(selectTransactions);
   const recurringTransactions = useSelector(selectRecurringTransactions);
@@ -168,8 +170,21 @@ const Transactions = () => {
         date: newTransaction.date
       };
       
-      if (wouldExceedBudget(tempTransaction, selectedBudget)) {
-        const overflowInfo = getBudgetOverflowInfo(tempTransaction, selectedBudget);
+      // Convert budget API type to utils type
+      const budgetForUtils = {
+        id: selectedBudget.id,
+        name: selectedBudget.name,
+        category: selectedBudget.category,
+        amount: selectedBudget.amount,
+        limit: selectedBudget.limit,
+        currency: selectedBudget.currency || 'USD',
+        spent: selectedBudget.spent,
+        startDate: selectedBudget.startDate,
+        endDate: selectedBudget.endDate
+      };
+      
+      if (wouldExceedBudget(tempTransaction, budgetForUtils)) {
+        const overflowInfo = getBudgetOverflowInfo(tempTransaction, budgetForUtils);
         setBudgetError(
           `This transaction would exceed your budget by $${overflowInfo?.overflowAmount.toFixed(2)}. ` +
           `Budget limit: $${overflowInfo?.budgetLimit.toFixed(2)}, Current spent: $${overflowInfo?.currentSpent.toFixed(2)}, ` +
@@ -192,11 +207,27 @@ const Transactions = () => {
       currency: 'USD'
     };
 
-    // Add the transaction
+    // Add the transaction to Supabase AND local state
     if (isRecurring) {
       dispatch(addRecurringTransaction(transaction));
     } else {
-      dispatch(addTransaction(transaction));
+      // Use async thunk to save to Supabase
+      if (user) {
+        dispatch(addTransactionToSupabase({ 
+          transaction: {
+            amount: transaction.amount,
+            description: transaction.description,
+            category: transaction.category,
+            date: transaction.date,
+            budgetId: transaction.budgetId,
+            type: amount >= 0 ? 'income' : 'expense'
+          }, 
+          userId: user.id 
+        }));
+      } else {
+        // Fallback to local storage only if user not available
+        dispatch(addTransaction(transaction));
+      }
     }
 
     // Update budget if one is selected
@@ -236,7 +267,13 @@ const Transactions = () => {
     if (isRecurring) {
       dispatch(deleteRecurringTransaction(transactionId));
     } else {
-      dispatch(deleteTransaction(transactionId));
+      // Use async thunk to delete from Supabase
+      if (user) {
+        dispatch(deleteTransactionFromSupabaseThunk(transactionId));
+      } else {
+        // Fallback to local storage only
+        dispatch(deleteTransaction(transactionId));
+      }
     }
   };
 
