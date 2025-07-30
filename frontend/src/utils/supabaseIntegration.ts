@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 import { Dispatch } from '@reduxjs/toolkit'
 import { setBudgets } from '../store/slices/budgetsSlice'
 import { setTransactions } from '../store/slices/transactionsSlice'
+import { setUserProfile } from '../store/slices/userSlice'
 
 // Types for database entities
 export interface SupabaseTransaction {
@@ -132,7 +133,15 @@ export const loadUserDataToRedux = async (userId: string, dispatch: Dispatch) =>
       console.error('❌ Failed to load profile:', profileError)
     } else {
       console.log('✅ Loaded profile from Supabase:', profile)
-      // You can dispatch profile data to a user slice if needed
+      // Dispatch profile data to Redux
+      dispatch(setUserProfile({
+        id: profile.id,
+        name: profile.name,
+        email: profile.email,
+        defaultCurrency: profile.default_currency || 'USD',
+        createdAt: profile.created_at,
+        updatedAt: profile.updated_at,
+      }))
     }
 
   } catch (error) {

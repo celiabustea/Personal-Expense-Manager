@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useSelector } from 'react-redux';
 import { useDarkMode } from '../src/contexts/DarkModeContext';
+import { useAuth } from '../src/contexts/AuthContext';
 import Button from '../src/components/atoms/Button/Button';
 import Icon from '../src/components/atoms/Icons/Icon';
 import Modal from '../src/components/molecules/Modal';
@@ -34,6 +35,10 @@ const Settings: React.FC = () => {
   const transactions = useSelector((state: RootState) => state.transactions.items);
   const recurringTransactions = useSelector((state: RootState) => state.transactions.recurring);
   const budgets = useSelector((state: RootState) => state.budgets.items);
+  const userProfile = useSelector((state: RootState) => state.user.profile);
+  
+  // Get authenticated user from context
+  const { user: authUser } = useAuth();
   
   // Combine all transactions
   const allTransactions = [...transactions, ...recurringTransactions];
@@ -44,11 +49,39 @@ const Settings: React.FC = () => {
     currency: budget.currency || 'USD' // Ensure currency is always a string
   })));
 
-  // Placeholder user data - TODO: Replace with actual user data from context/API
-  const user: User = {
-    name: 'John Doe',
-    email: 'john.doe@example.com',
+  // Get user data from profile or auth user as fallback
+  const getUserDisplayData = () => {
+    // If we have a user profile from Redux, use it
+    if (userProfile) {
+      return {
+        name: userProfile.name || 'User',
+        email: userProfile.email || 'user@example.com',
+      };
+    }
+    
+    // If we have an authenticated user but no profile yet, use auth data
+    if (authUser) {
+      const fallbackName = authUser.user_metadata?.name || 
+                          authUser.user_metadata?.full_name || 
+                          authUser.email?.split('@')[0] || 
+                          'User';
+      return {
+        name: fallbackName,
+        email: authUser.email || 'user@example.com',
+      };
+    }
+    
+    // Default fallback
+    return {
+      name: 'User',
+      email: 'user@example.com',
+    };
   };
+
+  const user = getUserDisplayData();
+
+  // Check if we're in a loading state (user is authenticated but profile not yet loaded)
+  const isProfileLoading = authUser && !userProfile;
   const { darkMode, toggleDarkMode } = useDarkMode();
 
   // Load AI privacy settings from localStorage on component mount
@@ -130,7 +163,14 @@ const Settings: React.FC = () => {
           <div className="user-info">
             <div className="info-row">
               <span className="label">Name:</span>
-              <span className="value">{user.name}</span>
+              <span className="value">
+                {user.name}
+                {isProfileLoading && (
+                  <span className="loading-indicator" title="Loading profile data...">
+                    <Icon name="chart" size="0.8em" />
+                  </span>
+                )}
+              </span>
             </div>
             <div className="info-row">
               <span className="label">Email:</span>
@@ -316,6 +356,19 @@ const Settings: React.FC = () => {
         .value {
           color: #1e293b;
           font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        .loading-indicator {
+          display: inline-flex;
+          align-items: center;
+          color: #6b7280;
+          animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
         .dark-mode-toggle {
           display: flex;
@@ -637,6 +690,9 @@ const Settings: React.FC = () => {
         }
         :global(.dark-mode) .value {
           color: #f8fafc !important;
+        }
+        :global(.dark-mode) .loading-indicator {
+          color: #94a3b8 !important;
         }
         :global(.dark-mode) .toggle-label {
           color: #f8fafc !important;
