@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import { createSelector } from '@reduxjs/toolkit';
 import budgetsReducer from './slices/budgetsSlice';
 import transactionsReducer from './slices/transactionsSlice';
+import userReducer from './slices/userSlice';
 import { loadStateFromLocalStorage, saveStateToLocalStorage } from '../utils/localStorage';
 
 export const store = configureStore({
   reducer: {
     budgets: budgetsReducer,
     transactions: transactionsReducer,
+    user: userReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -38,6 +40,7 @@ export const clearUserState = (userId: string) => {
   // Immediately clear Redux store to initial state
   store.dispatch({ type: 'transactions/setTransactions', payload: [] });
   store.dispatch({ type: 'budgets/setBudgets', payload: [] });
+  store.dispatch({ type: 'user/clearUserProfile' });
   
   // Clear localStorage for this user
   if (typeof window !== 'undefined') {
@@ -51,6 +54,7 @@ export const clearAllUserStates = () => {
   // Immediately clear Redux store
   store.dispatch({ type: 'transactions/setTransactions', payload: [] });
   store.dispatch({ type: 'budgets/setBudgets', payload: [] });
+  store.dispatch({ type: 'user/clearUserProfile' });
   
   // Clear all localStorage data
   if (typeof window !== 'undefined') {
