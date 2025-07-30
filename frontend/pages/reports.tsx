@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../src/store';
+import { selectTotalBalance } from '../src/store';
 import dynamic from 'next/dynamic';
 
 // Dynamic imports for components
@@ -33,6 +34,7 @@ const ReportsCharts = dynamic(() => import('../src/components/ReportsCharts'), {
 const Reports = () => {
   const transactions = useSelector((state: RootState) => state.transactions.items);
   const budgets = useSelector((state: RootState) => state.budgets.items);
+  const totalBalance = useSelector(selectTotalBalance);
 
   const isEmpty = transactions.length === 0;
   
@@ -177,7 +179,7 @@ const Reports = () => {
       transactionFrequency,
       colors,
       accentColors,
-      netIncome: totalIncome - totalSpending,
+      netIncome: totalBalance + totalIncome, // Total Balance (remaining budget) + Total Income
       totalSpentForMonth,
       spendingByBudget
     };

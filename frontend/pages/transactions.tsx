@@ -292,7 +292,9 @@ const Transactions = () => {
           <div className="summary-card">
             <h3>Total Spent</h3>
             <p>
-              {allTransactions.reduce((total: number, trans: any) => total + trans.amount, 0)
+              {allTransactions
+                .filter((trans: any) => trans.amount < 0) // Only include negative amounts (expenses)
+                .reduce((total: number, trans: any) => total + Math.abs(trans.amount), 0)
                 .toLocaleString('en-US', {
                   style: 'currency',
                   currency: 'USD'

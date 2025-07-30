@@ -18,22 +18,102 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export const signUp = async (email: string, password: string, name: string) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { name }
-    }
-  })
-  return { data, error }
+  console.log('🔄 Starting safe signUp process...');
+  
+  try {
+    const result = await safeAuthCall(() => 
+      supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name }
+        }
+      })
+    );
+    
+    console.log('✅ Safe signUp completed:', result);
+    return result;
+    
+  } catch (err: any) {
+    console.error('🚨 Final catch in signUp:', err);
+    return {
+      data: null,
+      error: {
+        message: 'Sign up failed',
+        name: 'AuthError'
+      }
+    };
+  }
 }
 
+// Helper function to safely call Supabase auth methods without throwing errors
+const safeAuthCall = async (authMethod: () => Promise<any>): Promise<{ data: any; error: any }> => {
+  return new Promise((resolve) => {
+    // Use requestIdleCallback or setTimeout to ensure error isolation
+    const executeAuth = () => {
+      try {
+        // Execute the auth method and handle the promise
+        authMethod()
+          .then((result: any) => {
+            resolve(result);
+          })
+          .catch((error: any) => {
+            // Convert any thrown error to our standard format
+            console.log('�️ Caught auth error in safeAuthCall:', error);
+            resolve({
+              data: null,
+              error: {
+                message: 'Invalid login credentials',
+                name: 'AuthError'
+              }
+            });
+          });
+      } catch (syncError: any) {
+        // Catch synchronous errors
+        console.log('🛡️ Caught sync error in safeAuthCall:', syncError);
+        resolve({
+          data: null,
+          error: {
+            message: 'Invalid login credentials',
+            name: 'AuthError'
+          }
+        });
+      }
+    };
+
+    // Use requestIdleCallback if available, otherwise setTimeout
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(executeAuth);
+    } else {
+      setTimeout(executeAuth, 0);
+    }
+  });
+};
+
 export const signIn = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-  return { data, error }
+  console.log('🔄 Starting safe signIn process...');
+  
+  try {
+    const result = await safeAuthCall(() => 
+      supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+    );
+    
+    console.log('✅ Safe signIn completed:', result);
+    return result;
+    
+  } catch (err: any) {
+    console.error('🚨 Final catch in signIn:', err);
+    return {
+      data: null,
+      error: {
+        message: 'Invalid login credentials',
+        name: 'AuthError'
+      }
+    };
+  }
 }
 
 export const signOut = async () => {
