@@ -72,16 +72,19 @@ const Dashboard = () => {
             <p className="balance-amount">
               {isHydrated ? formatCurrency(totalBalance) : formatCurrency(0)}
             </p>
+            <span className="balance-subtitle">Budget remaining</span>
           </div>
           <div className="summary-card">
             <Heading level={3}>Monthly Spending</Heading>
             <p className="spending-amount">
               {isHydrated ? formatCurrency(monthlySpending) : formatCurrency(0)}
             </p>
+            <span className="spending-subtitle">This month</span>
           </div>
           <div className="summary-card">
             <Heading level={3}>Active Budgets</Heading>
             <p>{isHydrated ? budgets.length : 0}</p>
+            <span className="budgets-subtitle">Categories</span>
           </div>
         </div>
 

@@ -45,9 +45,9 @@ export const findMatchingBudget = (transaction: Transaction, budgets: Budget[]):
  * @returns The amount to add to budget.spent
  */
 export const calculateBudgetSpentChange = (transactionAmount: number): number => {
-  // If amount is negative (spending), add the absolute value to spent
-  // If amount is positive (income/refund), subtract from spent
-  return transactionAmount < 0 ? Math.abs(transactionAmount) : -transactionAmount;
+  // Only negative amounts (expenses) should count toward budget spent
+  // Positive amounts (income) should not affect budget spent at all
+  return transactionAmount < 0 ? Math.abs(transactionAmount) : 0;
 };
 
 /**
@@ -56,8 +56,9 @@ export const calculateBudgetSpentChange = (transactionAmount: number): number =>
  * @returns The amount to reverse from budget.spent
  */
 export const reverseBudgetSpentChange = (transactionAmount: number): number => {
-  // Reverse the operation: if it was spending, subtract; if it was income, add
-  return transactionAmount < 0 ? -Math.abs(transactionAmount) : transactionAmount;
+  // Only reverse spending transactions (negative amounts)
+  // Income transactions (positive amounts) don't affect budget spent, so nothing to reverse
+  return transactionAmount < 0 ? -Math.abs(transactionAmount) : 0;
 };
 
 /**

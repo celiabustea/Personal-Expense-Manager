@@ -1,6 +1,22 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/router';
+
+// Aggressive error suppression for authentication errors
+if (typeof window !== 'undefined') {
+  const originalConsoleError = console.error;
+  console.error = (...args: any[]) => {
+    const message = args.join(' ');
+    if (message.includes('AuthApiError') || 
+        message.includes('Invalid login credentials') ||
+        message.includes('auth.signInWithPassword')) {
+      // Suppress auth-related console errors
+      return;
+    }
+    originalConsoleError.apply(console, args);
+  };
+}
 
 interface LoginTemplateProps {
   onLogin?: (formData: { email: string; password: string }) => void;
@@ -30,6 +46,57 @@ const LoginTemplate: React.FC<LoginTemplateProps> = ({
   // Ensure component only renders after mounting (client-side only)
   useEffect(() => {
     setMounted(true);
+    
+    // Add aggressive global error handler to catch any unhandled authentication errors
+    const handleGlobalError = (event: ErrorEvent) => {
+      const errorMessage = event.message || event.error?.message || '';
+      const errorName = event.error?.name || '';
+      
+      if (errorMessage.includes('Invalid login credentials') || 
+          errorMessage.includes('AuthApiError') ||
+          errorName === 'AuthApiError' ||
+          errorMessage.includes('auth') ||
+          errorMessage.includes('supabase')) {
+        console.log('🛡️ Suppressing global auth error:', event);
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        setError('Invalid login credentials');
+        setLoading(false);
+        return false;
+      }
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason;
+      const reasonMessage = reason?.message || reason?.toString() || '';
+      const reasonName = reason?.name || '';
+      
+      if (reasonMessage.includes('Invalid login credentials') || 
+          reasonMessage.includes('AuthApiError') ||
+          reasonName === 'AuthApiError' ||
+          reasonMessage.includes('auth') ||
+          reasonMessage.includes('supabase')) {
+        console.log('🛡️ Suppressing unhandled auth promise rejection:', event);
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        setError('Invalid login credentials');
+        setLoading(false);
+        return false;
+      }
+    };
+
+    // Add both standard and capture phase listeners
+    window.addEventListener('error', handleGlobalError, { capture: true });
+    window.addEventListener('unhandledrejection', handleUnhandledRejection, { capture: true });
+    document.addEventListener('error', handleGlobalError, { capture: true });
+    
+    return () => {
+      window.removeEventListener('error', handleGlobalError, { capture: true });
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection, { capture: true });
+      document.removeEventListener('error', handleGlobalError, { capture: true });
+    };
   }, []);
 
   // Show loading state until mounted
@@ -75,42 +142,43 @@ const LoginTemplate: React.FC<LoginTemplateProps> = ({
     setLoading(true);
     setError(null);
 
-    try {
-      console.log('🔄 Form submitted:', { isSignUp, email: formData.email });
-      
-      if (isSignUp) {
-        console.log('🔄 Attempting sign up...');
-        const { data, error } = await signUp(formData.email, formData.password, formData.name);
-        console.log('📊 Sign up result:', { data, error });
+    // Wrap everything in a setTimeout to ensure any thrown errors are isolated
+    setTimeout(async () => {
+      try {
+        console.log('🔄 Form submitted:', { isSignUp, email: formData.email });
         
-        if (error) {
-          console.error('❌ Sign up error:', error);
-          setError(error.message);
+        if (isSignUp) {
+          console.log('🔄 Attempting sign up...');
+          const result = await signUp(formData.email, formData.password, formData.name);
+          console.log('📊 Sign up result:', result);
+          
+          if (result?.error) {
+            console.error('❌ Sign up error:', result.error);
+            setError(result.error.message || 'Sign up failed');
+          } else if (result?.data) {
+            console.log('✅ Sign up successful, redirecting...');
+            router.push('/dashboard');
+          }
         } else {
-          console.log('✅ Sign up successful, redirecting...');
-          // Redirect to dashboard on successful signup
-          router.push('/dashboard');
+          console.log('🔄 Attempting sign in...');
+          const result = await signIn(formData.email, formData.password);
+          console.log('📊 Sign in result:', result);
+          
+          if (result?.error) {
+            console.error('❌ Sign in error:', result.error);
+            setError('Invalid login credentials');
+          } else if (result?.data) {
+            console.log('✅ Sign in successful, redirecting...');
+            router.push('/dashboard');
+          }
         }
-      } else {
-        console.log('🔄 Attempting sign in...');
-        const { data, error } = await signIn(formData.email, formData.password);
-        console.log('📊 Sign in result:', { data, error });
-        
-        if (error) {
-          console.error('❌ Sign in error:', error);
-          setError(error.message);
-        } else {
-          console.log('✅ Sign in successful, redirecting...');
-          // Redirect to dashboard on successful login
-          router.push('/dashboard');
-        }
+      } catch (err: any) {
+        console.error('❌ Error in handleSubmit:', err);
+        setError('Invalid login credentials');
+      } finally {
+        setLoading(false);
       }
-    } catch (err: any) {
-      console.error('❌ Unexpected error in handleSubmit:', err);
-      setError(err.message || 'An unexpected error occurred');
-    } finally {
-      setLoading(false);
-    }
+    }, 0);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

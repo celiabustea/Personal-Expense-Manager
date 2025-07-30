@@ -99,9 +99,18 @@ export const selectRecentTransactions = createSelector(
 );
 
 export const selectTotalBalance = createSelector(
-  [selectAllTransactions],
-  (transactions) => {
-    return transactions.reduce((sum, trans) => sum + trans.amount, 0);
+  [selectBudgets, selectAllTransactions],
+  (budgets, transactions) => {
+    // Calculate total budget amounts
+    const totalBudgetAmount = budgets.reduce((sum, budget) => sum + budget.amount, 0);
+    
+    // Calculate total spent from transactions (negative amounts = expenses)
+    const totalSpent = transactions
+      .filter(trans => trans.amount < 0)
+      .reduce((sum, trans) => sum + Math.abs(trans.amount), 0);
+    
+    // Remaining balance = Total Budget - Total Spent
+    return totalBudgetAmount - totalSpent;
   }
 );
 

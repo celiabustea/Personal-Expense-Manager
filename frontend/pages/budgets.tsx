@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { deleteBudget, createBudgetInSupabase } from '../src/store/slices/budgetsSlice';
-import { selectBudgets, AppDispatch } from '../src/store';
+import { selectBudgets, selectAllTransactions, AppDispatch } from '../src/store';
 import { useAuth } from '../src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 
@@ -27,6 +27,7 @@ const Budgets = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useAuth(); // Get current user for Supabase operations
   const budgets = useSelector(selectBudgets);
+  const allTransactions = useSelector(selectAllTransactions);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newBudget, setNewBudget] = useState({
     category: '',
@@ -110,11 +111,9 @@ const Budgets = () => {
           <div className="summary-card">
             <Heading level={3}>Total Spent</Heading>
             <p>
-              {budgets
-                .reduce(
-                  (total: number, budget: any) => total + (budget.spent || 0),
-                  0
-                )
+              {allTransactions
+                .filter((trans: any) => trans.amount < 0) // Only include negative amounts (expenses)
+                .reduce((total: number, trans: any) => total + Math.abs(trans.amount), 0)
                 .toLocaleString('en-US', {
                   style: 'currency',
                   currency: 'USD',
