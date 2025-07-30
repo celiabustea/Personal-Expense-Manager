@@ -241,8 +241,8 @@ const Reports = () => {
                   style={{padding:'0.4rem 0.7rem',border:'1px solid #d1d5db',borderRadius:6,fontSize:'1rem'}}
                 />
               </div>
-              <div style={{fontWeight:500,fontSize:'1.08rem',color:'#1e293b'}}>
-                Total Spent for Month: <span style={{fontWeight:700}}>${totalSpentForMonth.toFixed(2)}</span>
+              <div className="total-spent-month">
+                Total Spent for Month: <span className="total-spent-amount">${totalSpentForMonth.toFixed(2)}</span>
               </div>
             </div>
             <div className="reports-summary">

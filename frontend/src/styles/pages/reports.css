@@ -1,3 +1,9 @@
+.dark-mode .chart-card h3 {
+  color: #f3f4f6 !important;
+}
+.dark-mode .summary-card h3 {
+  color: #f3f4f6 !important;
+}
 .reports-container {
   padding: 2rem;
   position: relative;

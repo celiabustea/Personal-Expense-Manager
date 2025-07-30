@@ -75,3 +75,55 @@
     padding: 2rem 1rem;
   }
 }
+.transaction-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(30, 41, 59, 0.1);
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease-in-out;
+}
+
+.transaction-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(30, 41, 59, 0.15);
+}
+
+/* Dark mode styles for transaction cards and empty state */
+:global(.dark-mode) .transaction-card {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+:global(.dark-mode) .transaction-card h1,
+:global(.dark-mode) .transaction-card h2,
+:global(.dark-mode) .transaction-card h3,
+:global(.dark-mode) .transaction-card h4,
+:global(.dark-mode) .transaction-card h5,
+:global(.dark-mode) .transaction-card h6,
+:global(.dark-mode) .transaction-card p,
+:global(.dark-mode) .transaction-card span,
+:global(.dark-mode) .transaction-card .transaction-amount,
+:global(.dark-mode) .transaction-card .transaction-date {
+  color: #f8fafc !important;
+}
+
+:global(.dark-mode) .transaction-card .transaction-category,
+:global(.dark-mode) .transaction-card .transaction-frequency {
+  color: #94a3b8 !important;
+  background: #374151 !important;
+}
+
+:global(.dark-mode) .transaction-card .transaction-amount.positive {
+  color: #34d399 !important;
+}
+:global(.dark-mode) .transaction-card .transaction-amount.negative {
+  color: #f87171 !important;
+}
+
+
+:global(.dark-mode) .empty-state {
+  background-color: #1e293b !important;
+  color: #94a3b8 !important;
+}

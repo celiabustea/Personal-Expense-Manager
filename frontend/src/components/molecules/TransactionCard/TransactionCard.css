@@ -47,6 +47,38 @@
   font-weight: bold;
   margin: 0.5rem 0;
 }
+/* Dark mode styles for transaction card (stronger selector) */
+.dark-mode .transaction-card {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .transaction-card h1,
+.dark-mode .transaction-card h2,
+.dark-mode .transaction-card h3,
+.dark-mode .transaction-card h4,
+.dark-mode .transaction-card h5,
+.dark-mode .transaction-card h6,
+.dark-mode .transaction-card p,
+.dark-mode .transaction-card span,
+.dark-mode .transaction-card .transaction-amount,
+.dark-mode .transaction-card .transaction-date {
+  color: #f8fafc !important;
+}
+
+.dark-mode .transaction-card .transaction-category,
+.dark-mode .transaction-card .transaction-frequency {
+  color: #94a3b8 !important;
+  background: #374151 !important;
+}
+
+.dark-mode .transaction-card .transaction-amount.positive {
+  color: #34d399 !important;
+}
+.dark-mode .transaction-card .transaction-amount.negative {
+  color: #f87171 !important;
+}
 
 .transaction-date {
   color: #6b7280;
