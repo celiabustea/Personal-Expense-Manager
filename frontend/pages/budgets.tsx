@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { deleteBudget, createBudgetInSupabase } from '../src/store/slices/budgetsSlice';
 import { selectBudgets, selectAllTransactions, AppDispatch } from '../src/store';
 import { useAuth } from '../src/contexts/AuthContext';
+import { CURRENCIES } from '../src/utils/currencyUtils';
 import dynamic from 'next/dynamic';
 
 // Dynamic imports for components
@@ -35,13 +36,7 @@ const Budgets = () => {
     currency: 'USD',
   });
 
-  const currencies = [
-    { code: 'USD', symbol: '$', name: 'US Dollar' },
-    { code: 'EUR', symbol: '€', name: 'Euro' },
-    { code: 'GBP', symbol: '£', name: 'British Pound' },
-    { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
-    { code: 'CAD', symbol: '$', name: 'Canadian Dollar' },
-  ];
+  const currencies = CURRENCIES;
 
   const handleDelete = (id: any) => {
     dispatch(deleteBudget(id));
