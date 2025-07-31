@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { deleteBudget, createBudgetInSupabase } from '../src/store/slices/budgetsSlice';
-import { selectBudgets, selectAllTransactions, AppDispatch } from '../src/store';
+import { selectBudgetsWithCalculatedSpent, selectAllTransactions, AppDispatch } from '../src/store';
 import { useAuth } from '../src/contexts/AuthContext';
 import { CURRENCIES } from '../src/utils/currencyUtils';
 import CurrencyDisplay from '../src/components/atoms/CurrencyDisplay/CurrencyDisplay';
@@ -29,7 +29,7 @@ const PageLayout = dynamic(() => import('../src/components/templates/PageLayout'
 const Budgets = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useAuth(); // Get current user for Supabase operations
-  const budgets = useSelector(selectBudgets);
+  const budgets = useSelector(selectBudgetsWithCalculatedSpent);
   const allTransactions = useSelector(selectAllTransactions);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newBudget, setNewBudget] = useState({

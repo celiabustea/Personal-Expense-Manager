@@ -126,3 +126,35 @@ export const selectMonthlySpending = createSelector(
       .reduce((sum, trans) => sum + Math.abs(trans.amount), 0);
   }
 );
+
+// Dynamic budget selector that calculates spent amounts based on current transactions
+export const selectBudgetsWithCalculatedSpent = createSelector(
+  [selectBudgets, selectAllTransactions],
+  (budgets, transactions) => {
+    return budgets.map(budget => {
+      // Find matching transactions for this budget
+      const matchingTransactions = transactions.filter(transaction => {
+        return (
+          (budget.name && budget.name.toLowerCase().trim() === transaction.category?.toLowerCase().trim()) ||
+          (budget.category && budget.category.toLowerCase().trim() === transaction.category?.toLowerCase().trim())
+        );
+      });
+      
+      // Calculate spent amount (only from negative transactions - expenses)
+      const calculatedSpent = matchingTransactions
+        .filter(trans => trans.amount < 0)
+        .reduce((sum, trans) => sum + Math.abs(trans.amount), 0);
+      
+      // Calculate budget increase (from positive transactions - income)
+      const budgetIncrease = matchingTransactions
+        .filter(trans => trans.amount > 0)
+        .reduce((sum, trans) => sum + trans.amount, 0);
+      
+      return {
+        ...budget,
+        amount: budget.amount + budgetIncrease, // Increase budget amount with income
+        spent: calculatedSpent // Only expenses count as spent
+      };
+    });
+  }
+);

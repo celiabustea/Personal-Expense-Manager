@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { selectAllTransactions, selectTransactions, selectRecurringTransactions, selectBudgets, AppDispatch } from '../src/store';
+import { selectAllTransactions, selectTransactions, selectRecurringTransactions, selectBudgetsWithCalculatedSpent, AppDispatch } from '../src/store';
 import dynamic from 'next/dynamic';
 import { addTransaction, deleteTransaction, addRecurringTransaction, deleteRecurringTransaction, addTransactionToSupabase, deleteTransactionFromSupabaseThunk } from '../src/store/slices/transactionsSlice';
 import { updateBudgetSpent } from '../src/store/slices/budgetsSlice';
@@ -34,7 +34,7 @@ const Transactions = () => {
   const allTransactions = useSelector(selectAllTransactions);
   const transactions = useSelector(selectTransactions);
   const recurringTransactions = useSelector(selectRecurringTransactions);
-  const budgets = useSelector(selectBudgets);
+  const budgets = useSelector(selectBudgetsWithCalculatedSpent);
 
   // Memoize expensive sorting operation
   const sortedTransactions = useMemo(() => {
@@ -308,6 +308,7 @@ const Transactions = () => {
             category: transaction.category,
             date: transaction.date,
             budgetId: transaction.budgetId,
+            currency: transaction.currency,
             type: amount >= 0 ? 'income' : 'expense'
           }, 
           userId: user.id 
@@ -755,7 +756,7 @@ const Transactions = () => {
                         padding: '0.5rem'
                       }}
                     >
-                      💰 {budget.name} ({budget.category}) - Budget: ${budget.amount.toFixed(2)} | Spent: ${(budget.spent || 0).toFixed(2)} | {isOverBudget ? '⚠️ Over by' : 'Remaining'}: ${Math.abs(remaining).toFixed(2)}
+                      💰 {budget.name} ({budget.category}) - Budget: {formatCurrency(budget.amount, budget.currency || 'USD')} | Spent: {formatCurrency(budget.spent || 0, budget.currency || 'USD')} | {isOverBudget ? '⚠️ Over by' : 'Remaining'}: {formatCurrency(Math.abs(remaining), budget.currency || 'USD')}
                     </option>
                   );
                 })}
