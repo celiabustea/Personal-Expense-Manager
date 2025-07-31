@@ -4,6 +4,8 @@ import { deleteBudget, createBudgetInSupabase } from '../src/store/slices/budget
 import { selectBudgets, selectAllTransactions, AppDispatch } from '../src/store';
 import { useAuth } from '../src/contexts/AuthContext';
 import { CURRENCIES } from '../src/utils/currencyUtils';
+import CurrencyDisplay from '../src/components/atoms/CurrencyDisplay/CurrencyDisplay';
+import CurrencyBudgetSummary from '../src/components/molecules/CurrencyBudgetSummary/CurrencyBudgetSummary';
 import dynamic from 'next/dynamic';
 
 // Dynamic imports for components
@@ -87,35 +89,8 @@ const Budgets = () => {
           </p>
         </div>
 
-        <div className="budgets-summary">
-          <div className="summary-card">
-            <Heading level={3}>Total Budgeted</Heading>
-            <p>
-              {budgets
-                .reduce((total: number, budget: any) => total + budget.amount, 0)
-                .toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'USD',
-                })}
-            </p>
-          </div>
-          <div className="summary-card">
-            <Heading level={3}>Total Categories</Heading>
-            <p>{budgets.length}</p>
-          </div>
-          <div className="summary-card">
-            <Heading level={3}>Total Spent</Heading>
-            <p>
-              {allTransactions
-                .filter((trans: any) => trans.amount < 0) // Only include negative amounts (expenses)
-                .reduce((total: number, trans: any) => total + Math.abs(trans.amount), 0)
-                .toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'USD',
-                })}
-            </p>
-          </div>
-        </div>
+        {/* Currency-aware budget summary */}
+        <CurrencyBudgetSummary budgets={budgets} />
 
         <div className="budget-list">
           {budgets.length === 0 ? (

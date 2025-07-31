@@ -177,17 +177,6 @@ const Settings: React.FC = () => {
               <span className="value">{user.email}</span>
             </div>
           </div>
-          <div className="dark-mode-toggle">
-            <label htmlFor="darkModeSwitch" className="toggle-label">Dark Mode</label>
-            <input
-              id="darkModeSwitch"
-              type="checkbox"
-              checked={darkMode}
-              onChange={toggleDarkMode}
-              className="toggle-switch"
-            />
-            <span className="toggle-desc">{darkMode ? 'Enabled' : 'Disabled'}</span>
-          </div>
           
           <div className="ai-privacy-toggle">
             <div className="toggle-row">
@@ -264,6 +253,18 @@ const Settings: React.FC = () => {
                 disabled={exportSummary.transactionCount === 0 && exportSummary.budgetCount === 0}
               />
             </div>
+          </div>
+          
+          <div className="dark-mode-toggle">
+            <label htmlFor="darkModeSwitch" className="toggle-label">Dark Mode</label>
+            <input
+              id="darkModeSwitch"
+              type="checkbox"
+              checked={darkMode}
+              onChange={toggleDarkMode}
+              className="toggle-switch"
+            />
+            <span className="toggle-desc">{darkMode ? 'Enabled' : 'Disabled'}</span>
           </div>
         </div>
       </div>

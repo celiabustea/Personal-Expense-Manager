@@ -7,6 +7,8 @@ import { updateBudgetSpent } from '../src/store/slices/budgetsSlice';
 import { wouldExceedBudget, getBudgetOverflowInfo } from '../src/utils/budgetUtils';
 import { useAuth } from '../src/contexts/AuthContext';
 import { CURRENCIES, createCurrencyConversion, formatCurrency, getCurrencySymbol } from '../src/utils/currencyUtils';
+import CurrencyDisplay from '../src/components/atoms/CurrencyDisplay/CurrencyDisplay';
+import CurrencySpendingSummary from '../src/components/molecules/CurrencySpendingSummary/CurrencySpendingSummary';
 import type { CurrencyConversion } from '../src/utils/currencyUtils';
 
 // Dynamic imports for components
@@ -371,24 +373,9 @@ const Transactions = () => {
           <h1>Transactions</h1>
           <p>Track your spending across different categories</p>
         </div>
-        <div className="transactions-summary">
-          <div className="summary-card">
-            <h3>Total Transactions</h3>
-            <p>{allTransactions.length}</p>
-          </div>
-          <div className="summary-card">
-            <h3>Total Spent</h3>
-            <p>
-              {allTransactions
-                .filter((trans: any) => trans.amount < 0) // Only include negative amounts (expenses)
-                .reduce((total: number, trans: any) => total + Math.abs(trans.amount), 0)
-                .toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'USD'
-                })}
-            </p>
-          </div>
-        </div>
+        
+        {/* Currency-aware spending summary */}
+        <CurrencySpendingSummary transactions={allTransactions} />
 
         <div className="transactions-list">
           {sortedTransactions.length === 0 ? (
@@ -423,11 +410,11 @@ const Transactions = () => {
                     </div>
                   </div>
                   <div className="transaction-amount">
-                    {transaction.amount >= 0 ? '+' : ''}
-                    {transaction.amount.toLocaleString('en-US', {
-                      style: 'currency',
-                      currency: 'USD'
-                    })}
+                    <CurrencyDisplay 
+                      amount={transaction.amount} 
+                      currency={transaction.currency || 'USD'}
+                      showCurrencyTag={true}
+                    />
                   </div>
                   <button
                     className="delete-transaction-btn"
