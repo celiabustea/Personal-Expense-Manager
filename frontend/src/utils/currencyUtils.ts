@@ -1,4 +1,5 @@
 // Shared currency configuration and utilities
+import { currencyService } from '../services/currencyService';
 
 export interface Currency {
   code: string;
@@ -28,7 +29,8 @@ export interface CurrencyConversion {
   convertedAmount: number;
   convertedCurrency: string;
   exchangeRate: number;
-  lastUpdated: string;
+  provider?: string;
+  timestamp?: string;
 }
 
 /**
@@ -147,22 +149,54 @@ export const getExchangeRate = (fromCurrency: string, toCurrency: string): numbe
 };
 
 /**
- * Create a currency conversion object
+ * Create a currency conversion using real exchange rates
+ * Now uses the backend currency service for real-time rates
  */
-export const createCurrencyConversion = (
+export const createCurrencyConversion = async (
   originalAmount: number,
   originalCurrency: string,
   targetCurrency: string
-): CurrencyConversion => {
-  const exchangeRate = getExchangeRate(originalCurrency, targetCurrency);
-  const convertedAmount = convertCurrency(originalAmount, originalCurrency, targetCurrency, exchangeRate);
-  
-  return {
-    originalAmount,
-    originalCurrency,
-    convertedAmount,
-    convertedCurrency: targetCurrency,
-    exchangeRate,
-    lastUpdated: new Date().toISOString()
-  };
+): Promise<CurrencyConversion> => {
+  if (originalAmount <= 0) {
+    throw new Error('Amount must be positive');
+  }
+
+  if (originalCurrency === targetCurrency) {
+    return {
+      originalAmount,
+      originalCurrency,
+      convertedAmount: originalAmount,
+      convertedCurrency: targetCurrency,
+      exchangeRate: 1,
+      provider: 'same-currency',
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  try {
+    // Use the real currency service
+    const conversion = await currencyService.convertCurrency(
+      originalAmount,
+      originalCurrency,
+      targetCurrency
+    );
+    
+    return conversion;
+  } catch (error) {
+    console.error('Failed to get real exchange rate, falling back to mock rates:', error);
+    
+    // Fallback to mock rates
+    const exchangeRate = getExchangeRate(originalCurrency, targetCurrency);
+    const convertedAmount = convertCurrency(originalAmount, originalCurrency, targetCurrency, exchangeRate);
+    
+    return {
+      originalAmount,
+      originalCurrency,
+      convertedAmount,
+      convertedCurrency: targetCurrency,
+      exchangeRate,
+      provider: 'mock-fallback',
+      timestamp: new Date().toISOString()
+    };
+  }
 };

@@ -31,7 +31,7 @@ export class Transaction {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 12, scale: 2 })
   amount!: number;
 
   @Column({
@@ -51,6 +51,35 @@ export class Transaction {
 
   @Column({ type: 'date' })
   date!: Date;
+
+  // Multi-currency support
+  @Column({ default: 'USD' })
+  transactionCurrency!: string;
+
+  @Column({ nullable: true })
+  budgetCurrency?: string;
+
+  @Column('decimal', { precision: 10, scale: 6, nullable: true })
+  exchangeRate?: number;
+
+  @Column('decimal', { precision: 12, scale: 2, nullable: true })
+  budgetAmount?: number;
+
+  @Column({ default: false })
+  isCurrencyExchange!: boolean;
+
+  @Column({ nullable: true })
+  exchangeProvider?: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  exchangeTimestamp?: Date;
+
+  // Original currency information for historical tracking
+  @Column('decimal', { precision: 12, scale: 2, nullable: true })
+  originalAmount?: number;
+
+  @Column({ nullable: true })
+  originalCurrency?: string;
 
   @CreateDateColumn()
   createdAt!: Date;
