@@ -13,7 +13,6 @@ import { useEffect, useState, useMemo } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import MantraCard from '../src/components/molecules/MantraCard/MantraCard';
 import CurrencyDisplay from '../src/components/atoms/CurrencyDisplay/CurrencyDisplay';
-import { useDarkMode } from '../src/contexts/DarkModeContext';
 
 // Dynamic imports for components
 const PageLayout = dynamic(() => import('../src/components/templates/PageLayout'), {
@@ -35,26 +34,6 @@ const BudgetCard = dynamic(() => import('../src/components/molecules/BudgetCard/
 
 const Dashboard = () => {
   const [isHydrated, setIsHydrated] = useState(false);
-  const { darkMode } = useDarkMode();
-  
-  // Dynamic colors based on dark mode
-  const getColors = () => ({
-    // For budgeted (blue theme)
-    budgetedBg: darkMode ? '#1e3a8a' : '#f0f9ff',
-    budgetedBorder: darkMode ? '#3b82f6' : '#bae6fd',
-    budgetedText: darkMode ? '#f8fafc' : '#000000',
-    budgetedBadgeBg: darkMode ? '#3b82f6' : '#bae6fd',
-    budgetedBadgeText: darkMode ? '#f8fafc' : '#0369a1',
-    
-    // For spent (red theme)
-    spentBg: darkMode ? '#7f1d1d' : '#fef2f2',
-    spentBorder: darkMode ? '#ef4444' : '#fecaca',
-    spentText: darkMode ? '#f8fafc' : '#000000',
-    spentBadgeBg: darkMode ? '#ef4444' : '#fecaca',
-    spentBadgeText: darkMode ? '#f8fafc' : '#dc2626'
-  });
-  
-  const colors = getColors();
   
   useEffect(() => {
     // Set hydrated to true after component mounts on client
@@ -142,9 +121,9 @@ const Dashboard = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '0.5rem 0.75rem',
-                backgroundColor: colors.budgetedBg,
+                backgroundColor: '#f0f9ff',
                 borderRadius: '0.375rem',
-                border: `1px solid ${colors.budgetedBorder}`,
+                border: '1px solid #bae6fd',
                 marginTop: '0.5rem'
               }}>
                 <div style={{
@@ -155,21 +134,21 @@ const Dashboard = () => {
                   <span style={{
                     fontSize: '0.875rem',
                     fontWeight: 600,
-                    color: colors.budgetedText
+                    color: '#000000'
                   }}>
                     USD
                   </span>
                   <span style={{
                     fontSize: '0.75rem',
-                    color: colors.budgetedBadgeText,
-                    backgroundColor: colors.budgetedBadgeBg,
+                    color: '#0369a1',
+                    backgroundColor: '#bae6fd',
                     padding: '0.125rem 0.375rem',
                     borderRadius: '0.25rem'
                   }}>
                     0 budgets
                   </span>
                 </div>
-                <div style={{ fontWeight: 600, color: colors.budgetedText }}>
+                <div style={{ fontWeight: 600, color: '#000000' }}>
                   $0.00
                 </div>
               </div>
@@ -180,9 +159,9 @@ const Dashboard = () => {
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '0.5rem 0.75rem',
-                  backgroundColor: colors.budgetedBg,
+                  backgroundColor: '#f0f9ff',
                   borderRadius: '0.375rem',
-                  border: `1px solid ${colors.budgetedBorder}`,
+                  border: '1px solid #bae6fd',
                   marginTop: '0.5rem'
                 }}>
                   <div style={{
@@ -193,21 +172,21 @@ const Dashboard = () => {
                     <span style={{
                       fontSize: '0.875rem',
                       fontWeight: 600,
-                      color: colors.budgetedText
+                      color: '#000000'
                     }}>
                       {data.currency}
                     </span>
                     <span style={{
                       fontSize: '0.75rem',
-                      color: colors.budgetedBadgeText,
-                      backgroundColor: colors.budgetedBadgeBg,
+                      color: '#0369a1',
+                      backgroundColor: '#bae6fd',
                       padding: '0.125rem 0.375rem',
                       borderRadius: '0.25rem'
                     }}>
                       {data.budgetCount} budgets
                     </span>
                   </div>
-                  <div style={{ fontWeight: 600, color: colors.budgetedText }}>
+                  <div style={{ fontWeight: 600, color: '#000000' }}>
                     <CurrencyDisplay 
                       amount={data.totalBalance} 
                       currency={data.currency}
@@ -229,9 +208,9 @@ const Dashboard = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '0.5rem 0.75rem',
-                backgroundColor: colors.spentBg,
+                backgroundColor: '#fef2f2',
                 borderRadius: '0.375rem',
-                border: `1px solid ${colors.spentBorder}`,
+                border: '1px solid #fecaca',
                 marginTop: '0.5rem'
               }}>
                 <div style={{
@@ -242,21 +221,21 @@ const Dashboard = () => {
                   <span style={{
                     fontSize: '0.875rem',
                     fontWeight: 600,
-                    color: colors.spentText
+                    color: '#000000'
                   }}>
                     USD
                   </span>
                   <span style={{
                     fontSize: '0.75rem',
-                    color: colors.spentBadgeText,
-                    backgroundColor: colors.spentBadgeBg,
+                    color: '#dc2626',
+                    backgroundColor: '#fecaca',
                     padding: '0.125rem 0.375rem',
                     borderRadius: '0.25rem'
                   }}>
                     0 budgets
                   </span>
                 </div>
-                <div style={{ fontWeight: 600, color: colors.spentText }}>
+                <div style={{ fontWeight: 600, color: '#000000' }}>
                   $0.00
                 </div>
               </div>
@@ -267,9 +246,9 @@ const Dashboard = () => {
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '0.5rem 0.75rem',
-                  backgroundColor: colors.spentBg,
+                  backgroundColor: '#fef2f2',
                   borderRadius: '0.375rem',
-                  border: `1px solid ${colors.spentBorder}`,
+                  border: '1px solid #fecaca',
                   marginTop: '0.5rem'
                 }}>
                   <div style={{
@@ -280,21 +259,21 @@ const Dashboard = () => {
                     <span style={{
                       fontSize: '0.875rem',
                       fontWeight: 600,
-                      color: colors.spentText
+                      color: '#000000'
                     }}>
                       {data.currency}
                     </span>
                     <span style={{
                       fontSize: '0.75rem',
-                      color: colors.spentBadgeText,
-                      backgroundColor: colors.spentBadgeBg,
+                      color: '#dc2626',
+                      backgroundColor: '#fecaca',
                       padding: '0.125rem 0.375rem',
                       borderRadius: '0.25rem'
                     }}>
                       {data.budgetCount} budgets
                     </span>
                   </div>
-                  <div style={{ fontWeight: 600, color: colors.spentText }}>
+                  <div style={{ fontWeight: 600, color: '#000000' }}>
                     <CurrencyDisplay 
                       amount={data.totalSpending} 
                       currency={data.currency}
