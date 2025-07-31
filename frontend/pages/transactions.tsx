@@ -6,6 +6,8 @@ import { addTransaction, deleteTransaction, addRecurringTransaction, deleteRecur
 import { updateBudgetSpent } from '../src/store/slices/budgetsSlice';
 import { wouldExceedBudget, getBudgetOverflowInfo } from '../src/utils/budgetUtils';
 import { useAuth } from '../src/contexts/AuthContext';
+import { CURRENCIES, createCurrencyConversion, formatCurrency, getCurrencySymbol } from '../src/utils/currencyUtils';
+import type { CurrencyConversion } from '../src/utils/currencyUtils';
 
 // Dynamic imports for components
 const Button = dynamic(() => import("../src/components/atoms/Button/Button"));
@@ -51,6 +53,12 @@ const Transactions = () => {
     date: new Date().toISOString().slice(0, 16)
   });
   const [budgetError, setBudgetError] = useState<string | null>(null);
+  
+  // Currency conversion states
+  const [isMultiCurrency, setIsMultiCurrency] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState('USD');
+  const [currencyConversion, setCurrencyConversion] = useState<CurrencyConversion | null>(null);
+  const [showConversionConfirmation, setShowConversionConfirmation] = useState(false);
   
   // Receipt upload states
   const [selectedReceipt, setSelectedReceipt] = useState<File | null>(null);
@@ -133,6 +141,65 @@ const Transactions = () => {
     }
   };
 
+  // Currency conversion functions
+  const handleCurrencyToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    setIsMultiCurrency(checked);
+    if (!checked) {
+      setCurrencyConversion(null);
+      setShowConversionConfirmation(false);
+      setSelectedCurrency('USD');
+    }
+  };
+
+  const calculateCurrencyConversion = async () => {
+    const amount = parseFloat(newTransaction.amount.replace(/[, ]+/g, ""));
+    if (isNaN(amount) || amount === 0 || !newTransaction.budgetId) return;
+
+    const selectedBudget = budgets.find(budget => budget.id === newTransaction.budgetId);
+    if (!selectedBudget) return;
+
+    const budgetCurrency = selectedBudget.currency || 'USD';
+    
+    if (selectedCurrency !== budgetCurrency) {
+      try {
+        // Use absolute amount for conversion calculation, but preserve the sign
+        const conversion = await createCurrencyConversion(Math.abs(amount), selectedCurrency, budgetCurrency);
+        
+        // Preserve the original sign (expense vs income)
+        const signedConversion = {
+          ...conversion,
+          originalAmount: amount, // Keep original sign
+          convertedAmount: amount < 0 ? -conversion.convertedAmount : conversion.convertedAmount
+        };
+        
+        setCurrencyConversion(signedConversion);
+        // Don't auto-show confirmation here, let the form submission handle it
+      } catch (error) {
+        console.error('Error calculating currency conversion:', error);
+        // Handle error gracefully - maybe show a notification to user
+      }
+    } else {
+      // Clear conversion if currencies are the same
+      setCurrencyConversion(null);
+    }
+  };
+
+  const handleConversionConfirm = () => {
+    setShowConversionConfirmation(false);
+    // Proceed with submitting the transaction
+    const form = document.querySelector('form');
+    if (form) {
+      const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+      form.dispatchEvent(submitEvent);
+    }
+  };
+
+  const handleConversionCancel = () => {
+    setShowConversionConfirmation(false);
+    setCurrencyConversion(null);
+  };
+
   // Function to close modal and reset all states
   const closeModal = () => {
     setNewTransaction({
@@ -148,6 +215,11 @@ const Transactions = () => {
     setSelectedReceipt(null);
     setUploadStatus('');
     setIsModalOpen(false);
+    // Reset currency conversion states
+    setIsMultiCurrency(false);
+    setSelectedCurrency('USD');
+    setCurrencyConversion(null);
+    setShowConversionConfirmation(false);
   };
 
   const handleAddTransaction = (e: React.FormEvent) => {
@@ -194,9 +266,20 @@ const Transactions = () => {
       }
     }
 
+    // Handle currency conversion confirmation
+    if (isMultiCurrency && currencyConversion && !showConversionConfirmation) {
+      // Show confirmation dialog for currency conversion
+      setShowConversionConfirmation(true);
+      return; // Wait for user confirmation
+    }
+
+    // Use converted amount if currency conversion was applied, but preserve the original sign
+    const finalAmount = currencyConversion ? currencyConversion.convertedAmount : amount;
+    const transactionCurrency = isMultiCurrency ? selectedCurrency : (selectedBudget?.currency || 'USD');
+
     const transaction = {
       id: Date.now().toString(),
-      amount: amount,
+      amount: finalAmount,
       description: newTransaction.description,
       date: newTransaction.date,
       budgetId: newTransaction.budgetId,
@@ -204,7 +287,10 @@ const Transactions = () => {
       isRecurring: isRecurring,
       recurringFrequency: isRecurring ? recurringFrequency : undefined,
       timestamp: new Date().toISOString(),
-      currency: 'USD'
+      currency: transactionCurrency,
+      originalAmount: isMultiCurrency && currencyConversion ? currencyConversion.originalAmount : undefined,
+      originalCurrency: isMultiCurrency && currencyConversion ? selectedCurrency : undefined,
+      exchangeRate: currencyConversion?.exchangeRate
     };
 
     // Add the transaction to Supabase AND local state
@@ -224,19 +310,19 @@ const Transactions = () => {
           }, 
           userId: user.id 
         }));
+        // Note: Don't update budget locally when using Supabase - database triggers handle this
       } else {
         // Fallback to local storage only if user not available
         dispatch(addTransaction(transaction));
+        // Update budget locally only when not using Supabase
+        if (newTransaction.budgetId && amount !== 0) {
+          const spentChange = amount < 0 ? Math.abs(amount) : -amount;
+          dispatch(updateBudgetSpent({
+            budgetId: newTransaction.budgetId,
+            amount: spentChange
+          }));
+        }
       }
-    }
-
-    // Update budget if one is selected
-    if (newTransaction.budgetId && amount !== 0) {
-      const spentChange = amount < 0 ? Math.abs(amount) : -amount;
-      dispatch(updateBudgetSpent({
-        budgetId: newTransaction.budgetId,
-        amount: spentChange
-      }));
     }
 
     closeModal();
@@ -247,32 +333,33 @@ const Transactions = () => {
     const transactionToDelete = allTransactions.find(t => t.id === transactionId);
     const isRecurring = recurringTransactions.some((t: any) => t.id === transactionId);
     
-    if (transactionToDelete && transactionToDelete.category) {
-      // Find the budget that matches this transaction's category (budget name)
-      const matchingBudget = budgets.find(budget => 
-        budget.name && transactionToDelete.category &&
-        budget.name.toLowerCase().trim() === transactionToDelete.category.toLowerCase().trim()
-      );
-      
-      if (matchingBudget) {
-        // Reverse the budget update
-        const spentChange = transactionToDelete.amount < 0 ? -Math.abs(transactionToDelete.amount) : transactionToDelete.amount;
-        dispatch(updateBudgetSpent({
-          budgetId: matchingBudget.id,
-          amount: spentChange
-        }));
-      }
-    }
-    
     if (isRecurring) {
       dispatch(deleteRecurringTransaction(transactionId));
     } else {
       // Use async thunk to delete from Supabase
       if (user) {
         dispatch(deleteTransactionFromSupabaseThunk(transactionId));
+        // Note: Don't update budget locally when using Supabase - database triggers handle this
       } else {
         // Fallback to local storage only
         dispatch(deleteTransaction(transactionId));
+        // Update budget locally only when not using Supabase
+        if (transactionToDelete && transactionToDelete.category) {
+          // Find the budget that matches this transaction's category (budget name)
+          const matchingBudget = budgets.find(budget => 
+            budget.name && transactionToDelete.category &&
+            budget.name.toLowerCase().trim() === transactionToDelete.category.toLowerCase().trim()
+          );
+          
+          if (matchingBudget) {
+            // Reverse the budget update
+            const spentChange = transactionToDelete.amount < 0 ? -Math.abs(transactionToDelete.amount) : transactionToDelete.amount;
+            dispatch(updateBudgetSpent({
+              budgetId: matchingBudget.id,
+              amount: spentChange
+            }));
+          }
+        }
       }
     }
   };
@@ -387,14 +474,142 @@ const Transactions = () => {
                 name="amount"
                 placeholder="Enter amount (use negative for expenses)"
                 value={newTransaction.amount}
-                onChange={(e) => {
+                onChange={async (e) => {
                   setNewTransaction({...newTransaction, amount: e.target.value});
                   setBudgetError(null); // Clear error when amount changes
+                  
+                  // Auto-calculate conversion when amount changes
+                  if (isMultiCurrency && e.target.value && newTransaction.budgetId) {
+                    const amount = parseFloat(e.target.value.replace(/[, ]+/g, ""));
+                    if (!isNaN(amount) && amount !== 0) {
+                      const selectedBudget = budgets.find(budget => budget.id === newTransaction.budgetId);
+                      const budgetCurrency = selectedBudget?.currency || 'USD';
+                      
+                      if (selectedCurrency !== budgetCurrency) {
+                        try {
+                          // Calculate conversion immediately
+                          const conversion = await createCurrencyConversion(Math.abs(amount), selectedCurrency, budgetCurrency);
+                          
+                          // Preserve the original sign (expense vs income)
+                          const signedConversion = {
+                            ...conversion,
+                            originalAmount: amount,
+                            convertedAmount: amount < 0 ? -conversion.convertedAmount : conversion.convertedAmount
+                          };
+                          
+                          setCurrencyConversion(signedConversion);
+                        } catch (error) {
+                          console.error('Error calculating currency conversion:', error);
+                        }
+                      }
+                    }
+                  }
                 }}
                 required={true}
                 step="0.01"
               />
             </div>
+            
+            {/* Currency Selection Section */}
+            <div className="form-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={isMultiCurrency}
+                  onChange={handleCurrencyToggle}
+                  style={{ accentColor: '#1e293b', width: '1.1em', height: '1.1em', marginRight: '0.5em' }}
+                />
+                <span style={{fontWeight: 500}}>Different Currency</span>
+              </label>
+            </div>
+
+            {isMultiCurrency && (
+              <div className="form-group">
+                <label>Transaction Currency</label>
+                <select
+                  value={selectedCurrency}
+                  onChange={async (e) => {
+                    const newCurrency = e.target.value;
+                    setSelectedCurrency(newCurrency);
+                    
+                    // Auto-calculate conversion when currency changes
+                    if (newTransaction.amount && newTransaction.budgetId) {
+                      const amount = parseFloat(newTransaction.amount.replace(/[, ]+/g, ""));
+                      if (!isNaN(amount) && amount !== 0) {
+                        const selectedBudget = budgets.find(budget => budget.id === newTransaction.budgetId);
+                        const budgetCurrency = selectedBudget?.currency || 'USD';
+                        
+                        if (newCurrency !== budgetCurrency) {
+                          try {
+                            // Calculate conversion immediately
+                            const conversion = await createCurrencyConversion(Math.abs(amount), newCurrency, budgetCurrency);
+                            
+                            // Preserve the original sign (expense vs income)
+                            const signedConversion = {
+                              ...conversion,
+                              originalAmount: amount,
+                              convertedAmount: amount < 0 ? -conversion.convertedAmount : conversion.convertedAmount
+                            };
+                            
+                            setCurrencyConversion(signedConversion);
+                            
+                            // Auto-show confirmation dialog
+                            setShowConversionConfirmation(true);
+                          } catch (error) {
+                            console.error('Error calculating currency conversion:', error);
+                          }
+                        } else {
+                          // Clear conversion if currencies are the same
+                          setCurrencyConversion(null);
+                          setShowConversionConfirmation(false);
+                        }
+                      }
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '2px solid #1e293b',
+                    borderRadius: '0.375rem',
+                    fontSize: '1rem',
+                    backgroundColor: '#ffffff',
+                    color: '#1e293b',
+                    fontWeight: 500,
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {CURRENCIES.map((currency) => (
+                    <option key={currency.code} value={currency.code}>
+                      {currency.code} - {currency.name} ({currency.symbol})
+                    </option>
+                  ))}
+                </select>
+                
+                {currencyConversion && (
+                  <div style={{
+                    marginTop: '0.5rem',
+                    padding: '0.75rem',
+                    backgroundColor: currencyConversion.originalAmount < 0 ? '#fef2f2' : '#f0fdf4',
+                    border: `1px solid ${currencyConversion.originalAmount < 0 ? '#fecaca' : '#bbf7d0'}`,
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    color: currencyConversion.originalAmount < 0 ? '#dc2626' : '#16a34a'
+                  }}>
+                    <div style={{ fontWeight: 500, marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <span>{currencyConversion.originalAmount < 0 ? '💸' : '💰'}</span>
+                      {currencyConversion.originalAmount < 0 ? 'Expense' : 'Income'} Conversion Preview:
+                    </div>
+                    <div>
+                      {currencyConversion.originalAmount.toFixed(2)} {currencyConversion.originalCurrency} → {currencyConversion.convertedAmount.toFixed(2)} {currencyConversion.convertedCurrency}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                      Exchange rate: 1 {currencyConversion.originalCurrency} = {currencyConversion.exchangeRate.toFixed(4)} {currencyConversion.convertedCurrency}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             
             {/* Receipt Upload Section */}
             <div className="form-group">
@@ -484,9 +699,43 @@ const Transactions = () => {
               <label>Budget</label>
               <select
                 value={newTransaction.budgetId}
-                onChange={(e) => {
+                onChange={async (e) => {
                   setNewTransaction({...newTransaction, budgetId: e.target.value});
                   setBudgetError(null); // Clear error when budget changes
+                  
+                  // Auto-calculate conversion when budget changes
+                  if (isMultiCurrency && newTransaction.amount && e.target.value) {
+                    const amount = parseFloat(newTransaction.amount.replace(/[, ]+/g, ""));
+                    if (!isNaN(amount) && amount !== 0) {
+                      const selectedBudget = budgets.find(budget => budget.id === e.target.value);
+                      const budgetCurrency = selectedBudget?.currency || 'USD';
+                      
+                      if (selectedCurrency !== budgetCurrency) {
+                        try {
+                          // Calculate conversion immediately
+                          const conversion = await createCurrencyConversion(Math.abs(amount), selectedCurrency, budgetCurrency);
+                          
+                          // Preserve the original sign (expense vs income)
+                          const signedConversion = {
+                            ...conversion,
+                            originalAmount: amount,
+                            convertedAmount: amount < 0 ? -conversion.convertedAmount : conversion.convertedAmount
+                          };
+                          
+                          setCurrencyConversion(signedConversion);
+                          
+                          // Auto-show confirmation dialog
+                          setShowConversionConfirmation(true);
+                        } catch (error) {
+                          console.error('Error calculating currency conversion:', error);
+                        }
+                      } else {
+                        // Clear conversion if currencies are the same
+                        setCurrencyConversion(null);
+                        setShowConversionConfirmation(false);
+                      }
+                    }
+                  }
                 }}
                 required={false}
                 style={{
@@ -593,6 +842,67 @@ const Transactions = () => {
             </div>
           </form>
         </Modal>
+
+        {/* Currency Conversion Confirmation Dialog */}
+        {showConversionConfirmation && currencyConversion && (
+          <Modal
+            isOpen={showConversionConfirmation}
+            onClose={handleConversionCancel}
+            title={`${currencyConversion.originalAmount < 0 ? 'Expense' : 'Income'} Currency Conversion`}
+          >
+            <div style={{ padding: '1rem' }}>
+              <p style={{ marginBottom: '1rem', fontSize: '1rem', color: '#1e293b' }}>
+                This {currencyConversion.originalAmount < 0 ? 'expense' : 'income'} will be converted to your budget currency:
+              </p>
+              
+              <div style={{
+                backgroundColor: currencyConversion.originalAmount < 0 ? '#fef2f2' : '#f0fdf4',
+                border: `1px solid ${currencyConversion.originalAmount < 0 ? '#fecaca' : '#bbf7d0'}`,
+                borderRadius: '0.5rem',
+                padding: '1rem',
+                marginBottom: '1.5rem'
+              }}>
+                <div style={{ 
+                  fontSize: '1.1rem', 
+                  fontWeight: 600, 
+                  color: currencyConversion.originalAmount < 0 ? '#dc2626' : '#16a34a', 
+                  marginBottom: '0.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}>
+                  <span>{currencyConversion.originalAmount < 0 ? '💸' : '💰'}</span>
+                  {currencyConversion.originalAmount.toFixed(2)} {currencyConversion.originalCurrency} → {currencyConversion.convertedAmount.toFixed(2)} {currencyConversion.convertedCurrency}
+                </div>
+                <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                  Exchange rate: 1 {currencyConversion.originalCurrency} = {currencyConversion.exchangeRate.toFixed(4)} {currencyConversion.convertedCurrency}
+                </div>
+              </div>
+
+              <p style={{ marginBottom: '1.5rem', fontSize: '0.95rem', color: '#4b5563' }}>
+                {currencyConversion.originalAmount < 0 
+                  ? `This will be deducted from your budget with the currency exchange being (${currencyConversion.originalAmount.toFixed(2)} ${currencyConversion.originalCurrency} → ${currencyConversion.convertedAmount.toFixed(2)} ${currencyConversion.convertedCurrency}). Do you want to proceed?`
+                  : `This will be added to your budget with the currency exchange being (${currencyConversion.originalAmount.toFixed(2)} ${currencyConversion.originalCurrency} → ${currencyConversion.convertedAmount.toFixed(2)} ${currencyConversion.convertedCurrency}). Do you want to proceed?`
+                }
+              </p>
+
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleConversionCancel}
+                  label="Cancel"
+                />
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={handleConversionConfirm}
+                  label={currencyConversion.originalAmount < 0 ? "Yes, Convert & Deduct" : "Yes, Convert & Add"}
+                />
+              </div>
+            </div>
+          </Modal>
+        )}
       </div>
     </PageLayout>
   );
