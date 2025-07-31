@@ -32,6 +32,9 @@
 .remaining-amount {
   font-size: 0.9rem;
   color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .remaining-amount {
@@ -49,17 +52,17 @@
 
 .progress-fill {
   height: 100%;
-  background-color: #1e293b;
+  background-color: #10b981; /* Green for good spending */
   transition: width 0.3s ease;
   border-radius: 4px;
 }
 
 .progress-fill.warning {
-  background-color: #f59e0b;
+  background-color: #f59e0b; /* Orange for approaching limit */
 }
 
 .progress-fill.danger {
-  background-color: #dc2626;
+  background-color: #dc2626; /* Red for over budget */
 }
 
 /* Position for delete button - styling handled by main.css */

@@ -3,6 +3,9 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../src/store';
 import { selectTotalBalance } from '../src/store';
 import dynamic from 'next/dynamic';
+import { ReportsProvider, useReports } from '../src/contexts/ReportsContext';
+import ReportsHeader from '../src/components/molecules/ReportsHeader/ReportsHeader';
+import MultiCurrencyTotals from '../src/components/molecules/MultiCurrencyTotals/MultiCurrencyTotals';
 
 // Dynamic imports for components
 const PageLayout = dynamic(() => import('../src/components/templates/PageLayout'), {
@@ -44,6 +47,39 @@ const Reports = () => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   });
+
+  return (
+    <ReportsProvider>
+      <ReportsContent 
+        transactions={transactions}
+        budgets={budgets}
+        totalBalance={totalBalance}
+        selectedMonth={selectedMonth}
+        setSelectedMonth={setSelectedMonth}
+        isEmpty={isEmpty}
+      />
+    </ReportsProvider>
+  );
+};
+
+interface ReportsContentProps {
+  transactions: any[];
+  budgets: any[];
+  totalBalance: number;
+  selectedMonth: string;
+  setSelectedMonth: (month: string) => void;
+  isEmpty: boolean;
+}
+
+const ReportsContent: React.FC<ReportsContentProps> = ({
+  transactions,
+  budgets,
+  totalBalance,
+  selectedMonth,
+  setSelectedMonth,
+  isEmpty
+}) => {
+  const { viewMode } = useReports();
 
   // Memoize expensive calculations
   const reportData = useMemo(() => {
@@ -209,6 +245,10 @@ const Reports = () => {
           <Heading level={1}>Reports</Heading>
           <p>Visualize your financial data and trends</p>
         </div>
+
+        {/* Multi-Currency Reports Header */}
+        <ReportsHeader />
+
         {isEmpty ? (
           <div style={{
             display: 'flex',
@@ -232,45 +272,45 @@ const Reports = () => {
           </div>
         ) : (
           <>
-            {/* Month Selector and Total Spent for Month */}
-            <div style={{display:'flex',alignItems:'center',gap:'1.5rem',marginBottom:'1.5rem',flexWrap:'wrap'}}>
-              <div>
-                <label style={{fontWeight:500,marginRight:8}}>Select Month:</label>
-                <input
-                  type="month"
-                  value={selectedMonth}
-                  onChange={e => setSelectedMonth(e.target.value)}
-                  style={{padding:'0.4rem 0.7rem',border:'1px solid #d1d5db',borderRadius:6,fontSize:'1rem'}}
-                />
+            {/* Native View: Move month selector above multi-currency totals */}
+            {viewMode === 'native' && (
+              <div style={{display:'flex',alignItems:'center',gap:'1.5rem',marginBottom:'1.5rem',flexWrap:'wrap'}}>
+                <div>
+                  <label style={{fontWeight:500,marginRight:8}}>Select Month:</label>
+                  <input
+                    type="month"
+                    value={selectedMonth}
+                    onChange={e => setSelectedMonth(e.target.value)}
+                    style={{padding:'0.4rem 0.7rem',border:'1px solid #d1d5db',borderRadius:6,fontSize:'1rem'}}
+                  />
+                </div>
               </div>
-              <div className="total-spent-month">
-                Total Spent for Month: <span className="total-spent-amount">${totalSpentForMonth.toFixed(2)}</span>
-              </div>
-            </div>
-            <div className="reports-summary">
-              <div className="summary-card">
-                <Heading level={3}>Total Spending</Heading>
-                <p className="amount negative">${totalSpending.toFixed(2)}</p>
-                <span className="change">This month</span>
-              </div>
-              <div className="summary-card">
-                <Heading level={3}>Total Income</Heading>
-                <p className="amount positive">${totalIncome.toFixed(2)}</p>
-                <span className="change">This month</span>
-              </div>
-              <div className="summary-card">
-                <Heading level={3}>Net Income</Heading>
-                <p className={`amount ${netIncome >= 0 ? 'positive' : 'negative'}`}>
-                  ${netIncome.toFixed(2)}
-                </p>
-                <span className="change">This month</span>
-              </div>
-              <div className="summary-card">
-                <Heading level={3}>Monthly Average</Heading>
-                <p className="amount">${monthlyAverage.toFixed(2)}</p>
-                <span className="change">Spending</span>
-              </div>
-            </div>
+            )}
+
+            {/* Multi-Currency Totals */}
+            <MultiCurrencyTotals transactions={transactions} budgets={budgets} />
+
+            {/* Unified View: Month selector only (totals handled by MultiCurrencyTotals) */}
+            {viewMode === 'unified' && (
+              <>
+                {/* Month Selector and Total Spent for Month */}
+                <div style={{display:'flex',alignItems:'center',gap:'1.5rem',marginBottom:'1.5rem',flexWrap:'wrap'}}>
+                  <div>
+                    <label style={{fontWeight:500,marginRight:8}}>Select Month:</label>
+                    <input
+                      type="month"
+                      value={selectedMonth}
+                      onChange={e => setSelectedMonth(e.target.value)}
+                      style={{padding:'0.4rem 0.7rem',border:'1px solid #d1d5db',borderRadius:6,fontSize:'1rem'}}
+                    />
+                  </div>
+                  <div className="total-spent-month">
+                    Total Spent for Month: <span className="total-spent-amount">${totalSpentForMonth.toFixed(2)}</span>
+                  </div>
+                </div>
+              </>
+            )}
+
             <ReportsCharts 
               categoryData={categoryData}
               monthlyTrendData={monthlyTrendData}

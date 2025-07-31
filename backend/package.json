@@ -21,6 +21,7 @@
     "express-validator": "^6.15.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "lottie-react": "^2.4.1",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "pg": "^8.16.3",

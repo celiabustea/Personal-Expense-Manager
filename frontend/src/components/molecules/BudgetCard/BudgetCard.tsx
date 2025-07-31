@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import dynamic from 'next/dynamic';
+import CurrencyDisplay from '../../atoms/CurrencyDisplay/CurrencyDisplay';
 
 // Dynamic imports for heavy components
 const Button = dynamic(() => import('../../atoms/Button'), {
@@ -37,18 +38,12 @@ const BudgetCard: React.FC<BudgetCardProps> = memo(({ budget, onDelete }) => {
       </div>
       <div className="budget-info">
         <p className="budget-amount">
-          Budget:{' '}
-          {amount.toLocaleString('en-US', {
-            style: 'currency',
-            currency: currency,
-          })}
+          Budget: <span style={{ color: '#000000', fontWeight: 600 }}>
+            <CurrencyDisplay amount={amount} currency={currency} />
+          </span>
         </p>
         <p className="remaining-amount">
-          Remaining:{' '}
-          {(amount - (spent || 0)).toLocaleString('en-US', {
-            style: 'currency',
-            currency: currency,
-          })}
+          Remaining: <CurrencyDisplay amount={amount - (spent || 0)} currency={currency} />
         </p>
       </div>
       <div className="progress-container">

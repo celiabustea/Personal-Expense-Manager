@@ -42,11 +42,11 @@ export const findMatchingBudget = (transaction: Transaction, budgets: Budget[]):
 /**
  * Calculates the budget spent change based on transaction amount
  * @param transactionAmount - The transaction amount (negative for spending, positive for income)
- * @returns The amount to add to budget.spent
+ * @returns The amount to add to budget.spent (only for expenses)
  */
 export const calculateBudgetSpentChange = (transactionAmount: number): number => {
   // Only negative amounts (expenses) should count toward budget spent
-  // Positive amounts (income) should not affect budget spent at all
+  // Positive amounts (income) increase the budget amount itself, not affect spent
   return transactionAmount < 0 ? Math.abs(transactionAmount) : 0;
 };
 
@@ -57,7 +57,29 @@ export const calculateBudgetSpentChange = (transactionAmount: number): number =>
  */
 export const reverseBudgetSpentChange = (transactionAmount: number): number => {
   // Only reverse spending transactions (negative amounts)
-  // Income transactions (positive amounts) don't affect budget spent, so nothing to reverse
+  // Income transactions (positive amounts) don't affect budget spent
+  return transactionAmount < 0 ? -Math.abs(transactionAmount) : 0;
+};
+
+/**
+ * Calculates the budget amount change based on transaction amount
+ * @param transactionAmount - The transaction amount (negative for spending, positive for income)
+ * @returns The amount to add to budget.amount (only for income)
+ */
+export const calculateBudgetAmountChange = (transactionAmount: number): number => {
+  // Only positive amounts (income) should increase budget amount
+  // Negative amounts (expenses) don't affect the budget amount itself
+  return transactionAmount > 0 ? transactionAmount : 0;
+};
+
+/**
+ * Reverses a budget amount change (for transaction deletion)
+ * @param transactionAmount - The original transaction amount
+ * @returns The amount to reverse from budget.amount
+ */
+export const reverseBudgetAmountChange = (transactionAmount: number): number => {
+  // Only reverse income transactions (positive amounts)
+  return transactionAmount > 0 ? -transactionAmount : 0;
   return transactionAmount < 0 ? -Math.abs(transactionAmount) : 0;
 };
 
@@ -129,7 +151,8 @@ export const getTransactionBudgetImpact = (transaction: Transaction, budgets: Bu
     budgetCategory: matchingBudget.category,
     impactType: isSpending ? 'spending' : 'income',
     impactAmount: impactAmount,
-    newSpentAmount: matchingBudget.spent + calculateBudgetSpentChange(transaction.amount)
+    newSpentAmount: matchingBudget.spent + calculateBudgetSpentChange(transaction.amount),
+    newBudgetAmount: matchingBudget.amount + calculateBudgetAmountChange(transaction.amount)
   };
 };
 

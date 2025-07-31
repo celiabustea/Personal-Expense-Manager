@@ -4,13 +4,15 @@ import {
   selectRecentTransactions, 
   selectTotalBalance, 
   selectMonthlySpending, 
-  selectBudgets 
+  selectBudgetsWithCalculatedSpent,
+  selectAllTransactions
 } from '../src/store';
 import dynamic from 'next/dynamic';
 import Link from "next/link";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import MantraCard from '../src/components/molecules/MantraCard/MantraCard';
+import CurrencyDisplay from '../src/components/atoms/CurrencyDisplay/CurrencyDisplay';
 
 // Dynamic imports for components
 const PageLayout = dynamic(() => import('../src/components/templates/PageLayout'), {
@@ -42,7 +44,49 @@ const Dashboard = () => {
   const recentTransactions = useSelector(selectRecentTransactions).slice(0, 3);
   const totalBalance = useSelector(selectTotalBalance);
   const monthlySpending = useSelector(selectMonthlySpending);
-  const budgets = useSelector(selectBudgets);
+  const budgets = useSelector(selectBudgetsWithCalculatedSpent);
+  const allTransactions = useSelector(selectAllTransactions);
+
+  // Calculate currency-specific data
+  const currencyData = useMemo(() => {
+    const budgetsByCurrency: { [key: string]: { totalBudgeted: number; count: number } } = {};
+    const spendingByCurrency: { [key: string]: number } = {};
+
+    // Group budgets by currency
+    budgets.forEach(budget => {
+      const currency = budget.currency || 'USD';
+      if (!budgetsByCurrency[currency]) {
+        budgetsByCurrency[currency] = { totalBudgeted: 0, count: 0 };
+      }
+      budgetsByCurrency[currency].totalBudgeted += budget.amount;
+      budgetsByCurrency[currency].count += 1;
+    });
+
+    // Calculate spending by currency from transactions (only negative amounts)
+    allTransactions.forEach(transaction => {
+      if (transaction.amount < 0) {
+        const currency = transaction.currency || 'USD';
+        if (!spendingByCurrency[currency]) {
+          spendingByCurrency[currency] = 0;
+        }
+        spendingByCurrency[currency] += Math.abs(transaction.amount);
+      }
+    });
+
+    // Combine currencies from both budgets and transactions
+    const allCurrencies = new Set([
+      ...Object.keys(budgetsByCurrency),
+      ...Object.keys(spendingByCurrency)
+    ]);
+
+    return Array.from(allCurrencies).map(currency => ({
+      currency,
+      totalBudgeted: budgetsByCurrency[currency]?.totalBudgeted || 0,
+      totalSpending: spendingByCurrency[currency] || 0,
+      totalBalance: (budgetsByCurrency[currency]?.totalBudgeted || 0) - (spendingByCurrency[currency] || 0),
+      budgetCount: budgetsByCurrency[currency]?.count || 0
+    })).sort((a, b) => a.currency.localeCompare(b.currency));
+  }, [budgets, allTransactions]);
 
   const formatCurrency = (amount: number, currency = 'USD') => {
     return amount.toLocaleString('en-US', {
@@ -67,20 +111,180 @@ const Dashboard = () => {
           <Heading level={1}>Dashboard</Heading>
         </div>
         <div className="dashboard-summary">
+          {/* Total Balance by Currency */}
           <div className="summary-card">
-            <Heading level={3}>Total Balance</Heading>
-            <p className="balance-amount">
-              {isHydrated ? formatCurrency(totalBalance) : formatCurrency(0)}
-            </p>
+            <Heading level={3}>Total Balance by Currency</Heading>
             <span className="balance-subtitle">Budget remaining</span>
+            {currencyData.length === 0 ? (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0.5rem 0.75rem',
+                backgroundColor: '#f0f9ff',
+                borderRadius: '0.375rem',
+                border: '1px solid #bae6fd',
+                marginTop: '0.5rem'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}>
+                  <span style={{
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    color: '#000000'
+                  }}>
+                    USD
+                  </span>
+                  <span style={{
+                    fontSize: '0.75rem',
+                    color: '#0369a1',
+                    backgroundColor: '#bae6fd',
+                    padding: '0.125rem 0.375rem',
+                    borderRadius: '0.25rem'
+                  }}>
+                    0 budgets
+                  </span>
+                </div>
+                <div style={{ fontWeight: 600, color: '#000000' }}>
+                  $0.00
+                </div>
+              </div>
+            ) : (
+              currencyData.map(data => (
+                <div key={data.currency} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '0.5rem 0.75rem',
+                  backgroundColor: '#f0f9ff',
+                  borderRadius: '0.375rem',
+                  border: '1px solid #bae6fd',
+                  marginTop: '0.5rem'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <span style={{
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      color: '#000000'
+                    }}>
+                      {data.currency}
+                    </span>
+                    <span style={{
+                      fontSize: '0.75rem',
+                      color: '#0369a1',
+                      backgroundColor: '#bae6fd',
+                      padding: '0.125rem 0.375rem',
+                      borderRadius: '0.25rem'
+                    }}>
+                      {data.budgetCount} budgets
+                    </span>
+                  </div>
+                  <div style={{ fontWeight: 600, color: '#000000' }}>
+                    <CurrencyDisplay 
+                      amount={data.totalBalance} 
+                      currency={data.currency}
+                      showCurrencyTag={false}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
           </div>
+
+          {/* Monthly Spending by Currency */}
           <div className="summary-card">
-            <Heading level={3}>Monthly Spending</Heading>
-            <p className="spending-amount">
-              {isHydrated ? formatCurrency(monthlySpending) : formatCurrency(0)}
-            </p>
+            <Heading level={3}>Monthly Spending by Currency</Heading>
             <span className="spending-subtitle">This month</span>
+            {currencyData.length === 0 ? (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0.5rem 0.75rem',
+                backgroundColor: '#fef2f2',
+                borderRadius: '0.375rem',
+                border: '1px solid #fecaca',
+                marginTop: '0.5rem'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}>
+                  <span style={{
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    color: '#000000'
+                  }}>
+                    USD
+                  </span>
+                  <span style={{
+                    fontSize: '0.75rem',
+                    color: '#dc2626',
+                    backgroundColor: '#fecaca',
+                    padding: '0.125rem 0.375rem',
+                    borderRadius: '0.25rem'
+                  }}>
+                    0 budgets
+                  </span>
+                </div>
+                <div style={{ fontWeight: 600, color: '#000000' }}>
+                  $0.00
+                </div>
+              </div>
+            ) : (
+              currencyData.map(data => (
+                <div key={data.currency} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '0.5rem 0.75rem',
+                  backgroundColor: '#fef2f2',
+                  borderRadius: '0.375rem',
+                  border: '1px solid #fecaca',
+                  marginTop: '0.5rem'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <span style={{
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      color: '#000000'
+                    }}>
+                      {data.currency}
+                    </span>
+                    <span style={{
+                      fontSize: '0.75rem',
+                      color: '#dc2626',
+                      backgroundColor: '#fecaca',
+                      padding: '0.125rem 0.375rem',
+                      borderRadius: '0.25rem'
+                    }}>
+                      {data.budgetCount} budgets
+                    </span>
+                  </div>
+                  <div style={{ fontWeight: 600, color: '#000000' }}>
+                    <CurrencyDisplay 
+                      amount={data.totalSpending} 
+                      currency={data.currency}
+                      showCurrencyTag={false}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
           </div>
+
           <div className="summary-card">
             <Heading level={3}>Active Budgets</Heading>
             <p>{isHydrated ? budgets.length : 0}</p>
