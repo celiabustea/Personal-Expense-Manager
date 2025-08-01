@@ -15,8 +15,7 @@ const PageLayout = dynamic(() => import('../src/components/templates/PageLayout'
     alignItems: 'center', 
     height: '100vh',
     fontSize: '1.1rem',
-    color: '#1e293b'
-  }}>Loading Reports...</div>
+  }} className="loading-text">Loading Reports...</div>
 });
 
 const Heading = dynamic(() => import('../src/components/atoms/Headings/Heading'));
@@ -29,8 +28,7 @@ const ReportsCharts = dynamic(() => import('../src/components/ReportsCharts'), {
     alignItems: 'center', 
     height: '200px',
     fontSize: '1rem',
-    color: '#64748b'
-  }}>Loading Charts...</div>,
+  }} className="loading-text">Loading Charts...</div>,
   ssr: false
 });
 
@@ -267,8 +265,8 @@ const ReportsContent: React.FC<ReportsContentProps> = ({
               <rect x="34" y="46" width="12" height="2" rx="1" fill="#cbd5e1" />
               <circle cx="40" cy="38" r="3" fill="#94a3b8" />
             </svg>
-            <h2 style={{fontWeight: 600, color: '#1e293b', marginBottom: '0.5rem'}}>No Data Yet</h2>
-            <p style={{maxWidth: 340, color: '#64748b', fontSize: '1.08rem'}}>Add transactions and budgets to see your financial reports and trends visualized here.</p>
+            <h2 style={{fontWeight: 600, marginBottom: '0.5rem'}} className="empty-state-title">No Data Yet</h2>
+            <p style={{maxWidth: 340, fontSize: '1.08rem'}} className="empty-state-text">Add transactions and budgets to see your financial reports and trends visualized here.</p>
           </div>
         ) : (
           <>
@@ -317,7 +315,6 @@ const ReportsContent: React.FC<ReportsContentProps> = ({
               dailySpendingData={dailySpendingData}
               budgetPerformanceData={budgetPerformanceData}
               incomeVsExpenses={incomeVsExpenses}
-              transactionFrequency={transactionFrequency}
               colors={colors}
               accentColors={accentColors}
               spendingByBudget={spendingByBudget}

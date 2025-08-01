@@ -48,6 +48,25 @@
   margin-bottom: 0.5rem;
 }
 
+/* Dark mode styles for summary cards */
+:global(.dark-mode) .summary-card {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+:global(.dark-mode) .summary-card h3 {
+  color: #f8fafc !important;
+}
+
+:global(.dark-mode) .summary-card p {
+  color: #f8fafc !important;
+}
+
+:global(.dark-mode) .modal-header h2 {
+  color: #f8fafc !important;
+}
+
 .summary-card p {
   color: #1e293b;
   font-size: 1.5rem;
@@ -107,8 +126,9 @@
   font-size: 1.125rem;
   color: #1e293b;
   margin-right: 1rem;
-  min-width: 100px;
-  text-align: right;
+  padding-right: 2rem;
+  min-width: 120px;
+  text-align: left;
 }
 
 .transaction-frequency {

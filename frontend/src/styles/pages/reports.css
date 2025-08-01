@@ -1,8 +1,152 @@
-.dark-mode .chart-card h3 {
-  color: #f3f4f6 !important;
+/* Dark Mode Styles for Reports Page */
+.dark-mode .reports-container {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
 }
+
+.dark-mode .reports-header {
+  border-bottom-color: #475569 !important;
+}
+
+.dark-mode .reports-header h1 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .reports-header p {
+  color: #94a3b8 !important;
+}
+
+/* Dark mode for summary cards */
+.dark-mode .summary-card {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
 .dark-mode .summary-card h3 {
-  color: #f3f4f6 !important;
+  color: #94a3b8 !important;
+}
+
+.dark-mode .summary-card p {
+  color: #f8fafc !important;
+}
+
+/* Dark mode for chart cards */
+.dark-mode .chart-card {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .chart-card h3 {
+  color: #f8fafc !important;
+}
+
+/* Dark mode for form inputs */
+.dark-mode input[type="month"] {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode input[type="month"]:focus {
+  border-color: #64748b !important;
+}
+
+/* Dark mode for labels */
+.dark-mode label {
+  color: #94a3b8 !important;
+}
+
+/* Dark mode for total spent display */
+.dark-mode .total-spent-month {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .total-spent-amount {
+  color: #f8fafc !important;
+}
+
+/* Dark mode for insight items */
+.dark-mode .insight-item {
+  background: linear-gradient(135deg, #334155 0%, #475569 100%) !important;
+  border-color: #64748b !important;
+}
+
+.dark-mode .metric-value {
+  color: #f8fafc !important;
+}
+
+.dark-mode .metric-label {
+  color: #94a3b8 !important;
+}
+
+/* Dark mode for insight status badges */
+.dark-mode .insight-status.good {
+  background: #064e3b !important;
+  color: #d1fae5 !important;
+}
+
+.dark-mode .insight-status.warning {
+  background: #78350f !important;
+  color: #fef3c7 !important;
+}
+
+.dark-mode .insight-status.bad {
+  background: #7f1d1d !important;
+  color: #fee2e2 !important;
+}
+
+.dark-mode .insight-status.neutral {
+  background: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+/* Dark mode for custom tooltips */
+.dark-mode .custom-tooltip {
+  background: rgba(15, 23, 42, 0.95) !important;
+  color: #f8fafc !important;
+  border: 1px solid #475569 !important;
+}
+
+.dark-mode .tooltip-label {
+  color: #cbd5e1 !important;
+}
+
+/* Dark mode for empty state */
+.dark-mode .empty-state-title {
+  color: #f8fafc !important;
+}
+
+.dark-mode .empty-state-text {
+  color: #94a3b8 !important;
+}
+
+/* Loading text styles */
+.loading-text {
+  color: #1e293b;
+}
+
+.dark-mode .loading-text {
+  color: #94a3b8 !important;
+}
+
+/* Light mode styles for empty state */
+.empty-state-title {
+  color: #1e293b;
+}
+
+.empty-state-text {
+  color: #64748b;
+}
+
+/* Dark mode for reports page general text */
+.dark-mode .reports-container h2 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .reports-container p {
+  color: #94a3b8 !important;
 }
 .reports-container {
   padding: 2rem;

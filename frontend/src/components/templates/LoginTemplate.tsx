@@ -32,6 +32,19 @@ const LoginTemplate: React.FC<LoginTemplateProps> = () => {
 
   useEffect(() => {
     setMounted(true);
+    
+    // Force light mode on login page
+    document.documentElement.classList.remove('dark-mode');
+    document.body.classList.remove('dark-mode');
+    
+    // Cleanup when component unmounts - restore dark mode if it was enabled
+    return () => {
+      const savedDarkMode = localStorage.getItem('darkMode');
+      if (savedDarkMode === 'true') {
+        document.documentElement.classList.add('dark-mode');
+        document.body.classList.add('dark-mode');
+      }
+    };
   }, []);
   
 
@@ -177,7 +190,9 @@ const LoginTemplate: React.FC<LoginTemplateProps> = () => {
                 border: '2px solid #e2e8f0',
                 borderRadius: '8px',
                 fontSize: '15px',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
+                backgroundColor: '#ffffff',
+                color: '#1e293b'
               }}
             />
           )}
@@ -195,7 +210,9 @@ const LoginTemplate: React.FC<LoginTemplateProps> = () => {
               border: '2px solid #e2e8f0',
               borderRadius: '8px',
               fontSize: '15px',
-              fontFamily: 'inherit'
+              fontFamily: 'inherit',
+              backgroundColor: '#ffffff',
+              color: '#1e293b'
             }}
           />
           <div style={{ position: 'relative' }}>
@@ -213,7 +230,9 @@ const LoginTemplate: React.FC<LoginTemplateProps> = () => {
                 border: '2px solid #e2e8f0',
                 borderRadius: '8px',
                 fontSize: '15px',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
+                backgroundColor: '#ffffff',
+                color: '#1e293b'
               }}
             />
             <span
