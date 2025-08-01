@@ -37,6 +37,7 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
   budgets
 }) => {
   const { viewMode, baseCurrency, convertToBaseCurrency } = useReports();
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [unifiedTotals, setUnifiedTotals] = useState({
     totalSpending: 0,
     totalIncome: 0,
@@ -44,6 +45,101 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
     budgetTotal: 0,
     budgetSpent: 0,
     budgetRemaining: 0
+  });
+
+  // Dark mode detection
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const isDark = document.documentElement.classList.contains('dark-mode') || 
+                     document.body.classList.contains('dark-mode');
+      setIsDarkMode(isDark);
+    };
+
+    checkDarkMode();
+    
+    // Create observer for class changes
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Dark mode aware styles
+  const getCardStyle = () => ({
+    padding: '1rem',
+    backgroundColor: isDarkMode ? '#1e293b' : '#ffffff',
+    borderRadius: '0.5rem',
+    border: `1px solid ${isDarkMode ? '#475569' : '#e2e8f0'}`,
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+  });
+
+  const getLabelStyle = () => ({
+    fontSize: '0.875rem',
+    color: isDarkMode ? '#94a3b8' : '#64748b',
+    marginBottom: '0.5rem'
+  });
+
+  const getValueStyle = (color: string) => ({
+    fontSize: '1.5rem',
+    fontWeight: 600,
+    color: color
+  });
+
+  const getLargeCurrencyCardStyle = () => ({
+    padding: '1.5rem',
+    backgroundColor: isDarkMode ? '#1e293b' : '#ffffff',
+    borderRadius: '0.5rem',
+    border: `2px solid ${isDarkMode ? '#475569' : '#e2e8f0'}`,
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+  });
+
+  const getHeadingStyle = () => ({
+    margin: 0,
+    fontSize: '1.125rem',
+    fontWeight: 600,
+    color: isDarkMode ? '#f8fafc' : '#1e293b'
+  });
+
+  const getSubHeadingStyle = () => ({
+    margin: '0 0 0.75rem 0',
+    fontSize: '1rem',
+    fontWeight: 600,
+    color: isDarkMode ? '#cbd5e1' : '#374151',
+    borderBottom: `1px solid ${isDarkMode ? '#475569' : '#e5e7eb'}`,
+    paddingBottom: '0.5rem'
+  });
+
+  const getSmallLabelStyle = () => ({
+    fontSize: '0.75rem',
+    color: isDarkMode ? '#94a3b8' : '#64748b',
+    marginBottom: '0.25rem'
+  });
+
+  const getMainHeadingStyle = () => ({
+    marginBottom: '1rem',
+    fontSize: '1.25rem',
+    fontWeight: 600,
+    color: isDarkMode ? '#f8fafc' : '#1e293b'
+  });
+
+  const getTipStyle = () => ({
+    marginTop: '1rem',
+    padding: '1rem',
+    backgroundColor: isDarkMode ? '#78350f' : '#fef3c7',
+    borderRadius: '0.375rem',
+    fontSize: '0.875rem',
+    color: isDarkMode ? '#fbbf24' : '#92400e'
+  });
+
+  const getCurrencyTagStyle = () => ({
+    marginLeft: '0.5rem',
+    padding: '0.25rem 0.5rem',
+    backgroundColor: isDarkMode ? '#374151' : '#f3f4f6',
+    color: isDarkMode ? '#9ca3af' : '#6b7280',
+    borderRadius: '0.25rem',
+    fontSize: '0.75rem',
+    fontWeight: 500
   });
 
   // Calculate unified totals with real currency conversion
@@ -160,17 +256,11 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
         gap: '1rem',
         marginBottom: '2rem'
       }}>
-        <div style={{
-          padding: '1rem',
-          backgroundColor: '#ffffff',
-          borderRadius: '0.5rem',
-          border: '1px solid #e2e8f0',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-        }}>
-          <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>
+        <div style={getCardStyle()}>
+          <div style={getLabelStyle()}>
             Total Spending (Converted to {baseCurrency})
           </div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 600, color: '#dc2626' }}>
+          <div style={getValueStyle('#dc2626')}>
             <CurrencyDisplay
               amount={unifiedTotals.totalSpending}
               currency={baseCurrency}
@@ -180,17 +270,11 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
           </div>
         </div>
 
-        <div style={{
-          padding: '1rem',
-          backgroundColor: '#ffffff',
-          borderRadius: '0.5rem',
-          border: '1px solid #e2e8f0',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-        }}>
-          <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>
+        <div style={getCardStyle()}>
+          <div style={getLabelStyle()}>
             Total Income (Converted to {baseCurrency})
           </div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 600, color: '#16a34a' }}>
+          <div style={getValueStyle('#16a34a')}>
             <CurrencyDisplay
               amount={unifiedTotals.totalIncome}
               currency={baseCurrency}
@@ -200,21 +284,11 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
           </div>
         </div>
 
-        <div style={{
-          padding: '1rem',
-          backgroundColor: '#ffffff',
-          borderRadius: '0.5rem',
-          border: '1px solid #e2e8f0',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-        }}>
-          <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>
+        <div style={getCardStyle()}>
+          <div style={getLabelStyle()}>
             Net Income (Converted to {baseCurrency})
           </div>
-          <div style={{ 
-            fontSize: '1.5rem', 
-            fontWeight: 600, 
-            color: unifiedTotals.netIncome >= 0 ? '#16a34a' : '#dc2626'
-          }}>
+          <div style={getValueStyle(unifiedTotals.netIncome >= 0 ? '#16a34a' : '#dc2626')}>
             <CurrencyDisplay
               amount={unifiedTotals.netIncome}
               currency={baseCurrency}
@@ -224,17 +298,11 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
           </div>
         </div>
 
-        <div style={{
-          padding: '1rem',
-          backgroundColor: '#ffffff',
-          borderRadius: '0.5rem',
-          border: '1px solid #e2e8f0',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-        }}>
-          <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>
+        <div style={getCardStyle()}>
+          <div style={getLabelStyle()}>
             Total Budgeted ({baseCurrency})
           </div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 600, color: '#3b82f6' }}>
+          <div style={getValueStyle('#3b82f6')}>
             <CurrencyDisplay
               amount={unifiedTotals.budgetTotal}
               currency={baseCurrency}
@@ -250,12 +318,7 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
   // Native mode - show per-currency totals with transaction and budget summaries
   return (
     <div style={{ marginBottom: '2rem' }}>
-      <h3 style={{ 
-        marginBottom: '1rem', 
-        fontSize: '1.25rem', 
-        fontWeight: 600, 
-        color: '#1e293b' 
-      }}>
+      <h3 style={getMainHeadingStyle()}>
         📊 Per-Currency Financial Summary
       </h3>
       
@@ -268,50 +331,24 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
           return (
             <div
               key={currency}
-              style={{
-                padding: '1.5rem',
-                backgroundColor: '#ffffff',
-                borderRadius: '0.5rem',
-                border: '2px solid #e2e8f0',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-              }}
+              style={getLargeCurrencyCardStyle()}
             >
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 marginBottom: '1.5rem'
               }}>
-                <h4 style={{ 
-                  margin: 0, 
-                  fontSize: '1.125rem', 
-                  fontWeight: 600, 
-                  color: '#1e293b' 
-                }}>
+                <h4 style={getHeadingStyle()}>
                   {currency} Financial Summary
                 </h4>
-                <span style={{
-                  marginLeft: '0.5rem',
-                  padding: '0.25rem 0.5rem',
-                  backgroundColor: '#f3f4f6',
-                  color: '#6b7280',
-                  borderRadius: '0.25rem',
-                  fontSize: '0.75rem',
-                  fontWeight: 500
-                }}>
+                <span style={getCurrencyTagStyle()}>
                   Native Currency
                 </span>
               </div>
 
               {/* Transaction Summary */}
               <div style={{ marginBottom: '1.5rem' }}>
-                <h5 style={{ 
-                  margin: '0 0 0.75rem 0', 
-                  fontSize: '1rem', 
-                  fontWeight: 600, 
-                  color: '#374151',
-                  borderBottom: '1px solid #e5e7eb',
-                  paddingBottom: '0.5rem'
-                }}>
+                <h5 style={getSubHeadingStyle()}>
                   💳 Transaction Totals for {currency}
                 </h5>
                 <div style={{
@@ -320,7 +357,7 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
                   gap: '1rem'
                 }}>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
+                    <div style={getSmallLabelStyle()}>
                       Total Spending
                     </div>
                     <CurrencyDisplay
@@ -331,7 +368,7 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
                   </div>
 
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
+                    <div style={getSmallLabelStyle()}>
                       Total Income
                     </div>
                     <CurrencyDisplay
@@ -342,7 +379,7 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
                   </div>
 
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
+                    <div style={getSmallLabelStyle()}>
                       Net Income
                     </div>
                     <CurrencyDisplay
@@ -356,14 +393,7 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
 
               {/* Budget Summary */}
               <div>
-                <h5 style={{ 
-                  margin: '0 0 0.75rem 0', 
-                  fontSize: '1rem', 
-                  fontWeight: 600, 
-                  color: '#374151',
-                  borderBottom: '1px solid #e5e7eb',
-                  paddingBottom: '0.5rem'
-                }}>
+                <h5 style={getSubHeadingStyle()}>
                   💰 Budget Totals for {currency}
                 </h5>
                 <div style={{
@@ -372,7 +402,7 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
                   gap: '1rem'
                 }}>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
+                    <div style={getSmallLabelStyle()}>
                       Total Budgeted
                     </div>
                     <CurrencyDisplay
@@ -383,7 +413,7 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
                   </div>
 
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
+                    <div style={getSmallLabelStyle()}>
                       Total Spent
                     </div>
                     <CurrencyDisplay
@@ -394,7 +424,7 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
                   </div>
 
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
+                    <div style={getSmallLabelStyle()}>
                       Budget Remaining
                     </div>
                     <CurrencyDisplay
@@ -411,14 +441,7 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
       </div>
 
       {currencies.length > 1 && (
-        <div style={{
-          marginTop: '1rem',
-          padding: '1rem',
-          backgroundColor: '#fef3c7',
-          borderRadius: '0.375rem',
-          fontSize: '0.875rem',
-          color: '#92400e'
-        }}>
+        <div style={getTipStyle()}>
           <strong>💡 Tip:</strong> Switch to "Unified View" to see all totals converted to {baseCurrency} for easier comparison.
         </div>
       )}

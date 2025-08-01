@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import CurrencyDisplay from '../../atoms/CurrencyDisplay/CurrencyDisplay';
 
 interface Budget {
@@ -21,6 +21,73 @@ interface CurrencyBudgetData {
 }
 
 const CurrencyBudgetSummary: React.FC<CurrencyBudgetSummaryProps> = ({ budgets }) => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Dark mode detection
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const isDark = document.documentElement.classList.contains('dark-mode') || 
+                     document.body.classList.contains('dark-mode');
+      setIsDarkMode(isDark);
+    };
+
+    checkDarkMode();
+    
+    // Create observer for class changes
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Dark mode aware styles
+  const getBudgetCardStyle = () => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '0.5rem 0.75rem',
+    backgroundColor: isDarkMode ? '#1e3a8a' : '#f0f9ff',
+    borderRadius: '0.375rem',
+    border: `1px solid ${isDarkMode ? '#3b82f6' : '#bae6fd'}`
+  });
+
+  const getSpentCardStyle = () => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '0.5rem 0.75rem',
+    backgroundColor: isDarkMode ? '#7f1d1d' : '#fef2f2',
+    borderRadius: '0.375rem',
+    border: `1px solid ${isDarkMode ? '#ef4444' : '#fecaca'}`
+  });
+
+  const getCurrencyTextStyle = () => ({
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    color: isDarkMode ? '#f8fafc' : '#000000'
+  });
+
+  const getBudgetTagStyle = () => ({
+    fontSize: '0.75rem',
+    color: isDarkMode ? '#93c5fd' : '#0369a1',
+    backgroundColor: isDarkMode ? '#1e40af' : '#bae6fd',
+    padding: '0.125rem 0.375rem',
+    borderRadius: '0.25rem'
+  });
+
+  const getSpentTagStyle = () => ({
+    fontSize: '0.75rem',
+    color: isDarkMode ? '#fca5a5' : '#dc2626',
+    backgroundColor: isDarkMode ? '#dc2626' : '#fecaca',
+    padding: '0.125rem 0.375rem',
+    borderRadius: '0.25rem'
+  });
+
+  const getAmountTextStyle = () => ({
+    fontWeight: 600,
+    color: isDarkMode ? '#f8fafc' : '#000000'
+  });
   const currencyBudgets = useMemo(() => {
     const budgetData: { [currency: string]: CurrencyBudgetData } = {};
 
@@ -52,13 +119,7 @@ const CurrencyBudgetSummary: React.FC<CurrencyBudgetSummaryProps> = ({ budgets }
         <div className="summary-card">
           <h3>Total Budgeted by Currency</h3>
           <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '0.5rem 0.75rem',
-            backgroundColor: '#f0f9ff',
-            borderRadius: '0.375rem',
-            border: '1px solid #bae6fd',
+            ...getBudgetCardStyle(),
             marginTop: '0.5rem'
           }}>
             <div style={{
@@ -66,24 +127,14 @@ const CurrencyBudgetSummary: React.FC<CurrencyBudgetSummaryProps> = ({ budgets }
               alignItems: 'center',
               gap: '0.5rem'
             }}>
-              <span style={{
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                color: '#000000'
-              }}>
+              <span style={getCurrencyTextStyle()}>
                 USD
               </span>
-              <span style={{
-                fontSize: '0.75rem',
-                color: '#0369a1',
-                backgroundColor: '#bae6fd',
-                padding: '0.125rem 0.375rem',
-                borderRadius: '0.25rem'
-              }}>
+              <span style={getBudgetTagStyle()}>
                 0 budgets
               </span>
             </div>
-            <div style={{ fontWeight: 600, color: '#000000' }}>
+            <div style={getAmountTextStyle()}>
               $0.00
             </div>
           </div>
@@ -91,13 +142,7 @@ const CurrencyBudgetSummary: React.FC<CurrencyBudgetSummaryProps> = ({ budgets }
         <div className="summary-card">
           <h3>Total Spent by Currency</h3>
           <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '0.5rem 0.75rem',
-            backgroundColor: '#fef2f2',
-            borderRadius: '0.375rem',
-            border: '1px solid #fecaca',
+            ...getSpentCardStyle(),
             marginTop: '0.5rem'
           }}>
             <div style={{
@@ -105,24 +150,14 @@ const CurrencyBudgetSummary: React.FC<CurrencyBudgetSummaryProps> = ({ budgets }
               alignItems: 'center',
               gap: '0.5rem'
             }}>
-              <span style={{
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                color: '#000000'
-              }}>
+              <span style={getCurrencyTextStyle()}>
                 USD
               </span>
-              <span style={{
-                fontSize: '0.75rem',
-                color: '#dc2626',
-                backgroundColor: '#fecaca',
-                padding: '0.125rem 0.375rem',
-                borderRadius: '0.25rem'
-              }}>
+              <span style={getSpentTagStyle()}>
                 0 budgets
               </span>
             </div>
-            <div style={{ fontWeight: 600, color: '#000000' }}>
+            <div style={getAmountTextStyle()}>
               $0.00
             </div>
           </div>
@@ -143,13 +178,7 @@ const CurrencyBudgetSummary: React.FC<CurrencyBudgetSummaryProps> = ({ budgets }
         <div className="summary-card">
           <h3>Total Budgeted by Currency</h3>
           <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '0.5rem 0.75rem',
-            backgroundColor: '#f0f9ff',
-            borderRadius: '0.375rem',
-            border: '1px solid #bae6fd',
+            ...getBudgetCardStyle(),
             marginTop: '0.5rem'
           }}>
             <div style={{
@@ -157,24 +186,14 @@ const CurrencyBudgetSummary: React.FC<CurrencyBudgetSummaryProps> = ({ budgets }
               alignItems: 'center',
               gap: '0.5rem'
             }}>
-              <span style={{
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                color: '#000000'
-              }}>
+              <span style={getCurrencyTextStyle()}>
                 {budgetData.currency}
               </span>
-              <span style={{
-                fontSize: '0.75rem',
-                color: '#0369a1',
-                backgroundColor: '#bae6fd',
-                padding: '0.125rem 0.375rem',
-                borderRadius: '0.25rem'
-              }}>
+              <span style={getBudgetTagStyle()}>
                 {budgetData.budgetCount} budgets
               </span>
             </div>
-            <div style={{ fontWeight: 600, color: '#000000' }}>
+            <div style={getAmountTextStyle()}>
               <CurrencyDisplay 
                 amount={budgetData.totalBudgeted} 
                 currency={budgetData.currency}
@@ -186,13 +205,7 @@ const CurrencyBudgetSummary: React.FC<CurrencyBudgetSummaryProps> = ({ budgets }
         <div className="summary-card">
           <h3>Total Spent by Currency</h3>
           <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '0.5rem 0.75rem',
-            backgroundColor: '#fef2f2',
-            borderRadius: '0.375rem',
-            border: '1px solid #fecaca',
+            ...getSpentCardStyle(),
             marginTop: '0.5rem'
           }}>
             <div style={{
@@ -200,24 +213,14 @@ const CurrencyBudgetSummary: React.FC<CurrencyBudgetSummaryProps> = ({ budgets }
               alignItems: 'center',
               gap: '0.5rem'
             }}>
-              <span style={{
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                color: '#000000'
-              }}>
+              <span style={getCurrencyTextStyle()}>
                 {budgetData.currency}
               </span>
-              <span style={{
-                fontSize: '0.75rem',
-                color: '#dc2626',
-                backgroundColor: '#fecaca',
-                padding: '0.125rem 0.375rem',
-                borderRadius: '0.25rem'
-              }}>
+              <span style={getSpentTagStyle()}>
                 {budgetData.budgetCount} budgets
               </span>
             </div>
-            <div style={{ fontWeight: 600, color: '#000000' }}>
+            <div style={getAmountTextStyle()}>
               <CurrencyDisplay 
                 amount={budgetData.totalSpent} 
                 currency={budgetData.currency}
@@ -248,39 +251,21 @@ const CurrencyBudgetSummary: React.FC<CurrencyBudgetSummaryProps> = ({ budgets }
           {currencyBudgets.map(({ currency, totalBudgeted, budgetCount }) => (
             <div
               key={`budgeted-${currency}`}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0.5rem 0.75rem',
-                backgroundColor: '#f0f9ff',
-                borderRadius: '0.375rem',
-                border: '1px solid #bae6fd'
-              }}
+              style={getBudgetCardStyle()}
             >
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}>
-                <span style={{
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  color: '#000000'
-                }}>
+                <span style={getCurrencyTextStyle()}>
                   {currency}
                 </span>
-                <span style={{
-                  fontSize: '0.75rem',
-                  color: '#0369a1',
-                  backgroundColor: '#bae6fd',
-                  padding: '0.125rem 0.375rem',
-                  borderRadius: '0.25rem'
-                }}>
+                <span style={getBudgetTagStyle()}>
                   {budgetCount} budgets
                 </span>
               </div>
-              <div style={{ fontWeight: 600, color: '#000000' }}>
+              <div style={getAmountTextStyle()}>
                 <CurrencyDisplay 
                   amount={totalBudgeted} 
                   currency={currency}
@@ -303,39 +288,21 @@ const CurrencyBudgetSummary: React.FC<CurrencyBudgetSummaryProps> = ({ budgets }
           {currencyBudgets.map(({ currency, totalSpent, budgetCount }) => (
             <div
               key={`spent-${currency}`}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0.5rem 0.75rem',
-                backgroundColor: '#fef2f2',
-                borderRadius: '0.375rem',
-                border: '1px solid #fecaca'
-              }}
+              style={getSpentCardStyle()}
             >
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}>
-                <span style={{
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  color: '#000000'
-                }}>
+                <span style={getCurrencyTextStyle()}>
                   {currency}
                 </span>
-                <span style={{
-                  fontSize: '0.75rem',
-                  color: '#dc2626',
-                  backgroundColor: '#fecaca',
-                  padding: '0.125rem 0.375rem',
-                  borderRadius: '0.25rem'
-                }}>
+                <span style={getSpentTagStyle()}>
                   {budgetCount} budgets
                 </span>
               </div>
-              <div style={{ fontWeight: 600, color: '#000000' }}>
+              <div style={getAmountTextStyle()}>
                 <CurrencyDisplay 
                   amount={totalSpent} 
                   currency={currency}

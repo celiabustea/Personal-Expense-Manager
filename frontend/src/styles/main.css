@@ -137,6 +137,11 @@ input {
 /* Dark mode global styles */
 :root.dark-mode {
   --color-primary: #f8fafc;
+  --color-secondary: #e2e8f0;
+  --color-text: #f8fafc;
+  --color-text-light: #cbd5e1;
+  --color-background: #0f172a;
+  --color-border: #374151;
 }
 
 html.dark-mode,
@@ -228,6 +233,17 @@ body.dark-mode {
 
 .dark-mode .toggle-desc {
   color: #94a3b8 !important;
+}
+
+/* Dark mode for heading components that use CSS variables */
+.dark-mode .heading,
+.dark-mode .heading-1,
+.dark-mode .heading-2,
+.dark-mode .heading-3,
+.dark-mode .heading-4,
+.dark-mode .heading-5,
+.dark-mode .heading-6 {
+  color: #f8fafc !important;
 }
 
 /* Unified Delete Button Styling */

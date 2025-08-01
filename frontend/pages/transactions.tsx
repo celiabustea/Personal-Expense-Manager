@@ -10,13 +10,14 @@ import { CURRENCIES, createCurrencyConversion, formatCurrency, getCurrencySymbol
 import CurrencyDisplay from '../src/components/atoms/CurrencyDisplay/CurrencyDisplay';
 import CurrencySpendingSummary from '../src/components/molecules/CurrencySpendingSummary/CurrencySpendingSummary';
 import type { CurrencyConversion } from '../src/utils/currencyUtils';
+import { createWorker } from 'tesseract.js';
 
-// Dynamic imports for components
 const Button = dynamic(() => import("../src/components/atoms/Button/Button"));
 const Heading = dynamic(() => import("../src/components/atoms/Headings/Heading"));
 const Input = dynamic(() => import("../src/components/atoms/Input/Input"));
 const Icon = dynamic(() => import("../src/components/atoms/Icons/Icon"));
 const Modal = dynamic(() => import("../src/components/molecules/Modal/Modal"));
+const BudgetSelector = dynamic(() => import("../src/components/molecules/BudgetSelector"));
 const PageLayout = dynamic(() => import("../src/components/templates/PageLayout"), {
   loading: () => <div style={{ 
     display: 'flex', 
@@ -85,62 +86,179 @@ const Transactions = () => {
     }
 
     setSelectedReceipt(file);
-    setUploadStatus('Processing receipt...');
+    setUploadStatus('Processing receipt with OCR...');
 
     try {
-      // Create FormData for the API call
-      const formData = new FormData();
-      formData.append('receipt', file);
-
-      // Call the receipt scanning API
-      const response = await fetch('/api/scan-bon', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      // Create Tesseract worker with better configuration
+      const worker = await createWorker('eng');
       
-      if (data.success) {
-        // Auto-fill form fields with extracted data
-        if (data.data.total) {
-          // Convert to negative for expense
-          const amount = data.data.total < 0 ? data.data.total : -Math.abs(data.data.total);
-          setNewTransaction(prev => ({
-            ...prev,
-            amount: amount.toString()
-          }));
-        }
-        
-        if (data.data.store) {
-          setNewTransaction(prev => ({
-            ...prev,
-            description: data.data.store
-          }));
-        }
-        
-        if (data.data.date) {
-          // Convert date to datetime-local format
-          const receiptDate = new Date(data.data.date);
-          if (!isNaN(receiptDate.getTime())) {
-            setNewTransaction(prev => ({
-              ...prev,
-              date: receiptDate.toISOString().slice(0, 16)
-            }));
-          }
-        }
+      // Configure Tesseract for better receipt recognition
+      await worker.setParameters({
+        tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .,:-()/',
+        preserve_interword_spaces: '1',
+        tessedit_ocr_engine_mode: '2', // Use LSTM OCR engine
+      });
+      
+      // Process the image with Tesseract
+      const { data: { text } } = await worker.recognize(file);
+      
+      // Terminate worker to free memory
+      await worker.terminate();
 
-        setUploadStatus('✓ Receipt processed successfully! Form fields updated.');
-      } else {
-        setUploadStatus(`Error: ${data.message || 'Failed to process receipt'}`);
+      console.log('OCR Text:', text);
+      
+      // Extract store name and total from OCR text
+      const extractedData = extractReceiptData(text);
+      
+      if (extractedData.store) {
+        setNewTransaction(prev => ({
+          ...prev,
+          description: extractedData.store || ''
+        }));
       }
+      
+      if (extractedData.total !== null) {
+        // Always convert to negative for expense (regardless of what OCR extracted)
+        const amount = -Math.abs(extractedData.total);
+        setNewTransaction(prev => ({
+          ...prev,
+          amount: amount.toString()
+        }));
+        console.log('Setting amount to:', amount); // Debug log
+      }
+
+      setUploadStatus('✓ Receipt processed successfully! Form fields updated.');
     } catch (error) {
-      console.error('Receipt upload error:', error);
+      console.error('OCR processing error:', error);
       setUploadStatus('Error: Failed to process receipt. Please try again.');
     }
+  };
+
+  // Helper function to extract data from OCR text
+  const extractReceiptData = (text: string) => {
+    // Clean and preprocess the text
+    const cleanedText = text
+      .replace(/[|]/g, 'I') // Replace common OCR errors
+      .replace(/[{}]/g, '') // Remove problematic characters
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
+    
+    const lines = cleanedText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    
+    let store: string | null = null;
+    let total: number | null = null;
+
+    console.log('OCR Text (cleaned):', cleanedText);
+    console.log('OCR Lines:', lines); // Debug log
+
+    // Look for store name - prioritize lines with store keywords and clean them up
+    const storeKeywords = ['PROFI', 'KAUFLAND', 'CARREFOUR', 'LIDL', 'MEGA', 'SELGROS', 'AUCHAN'];
+    
+    // First, try to find lines with known store names
+    for (const line of lines) {
+      const upperLine = line.toUpperCase();
+      for (const keyword of storeKeywords) {
+        if (upperLine.includes(keyword)) {
+          // Clean up the store name - extract just the relevant part
+          const keywordIndex = upperLine.indexOf(keyword);
+          // Extract from the keyword to the end of the line, then trim
+          let extractedName = line.substring(keywordIndex);
+          
+          // Remove common irrelevant parts that might follow the name
+          extractedName = extractedName.replace(/(\s*C\.?I\.?F\.?).*/i, '');
+          extractedName = extractedName.replace(/(\s*RO\d+).*/i, '');
+          extractedName = extractedName.replace(/(\s*Id\s*Unic).*/i, '');
+          
+          store = extractedName.trim();
+          break;
+        }
+      }
+      if (store) break;
+    }
+
+    // If no store keyword found, use a fallback to find the most likely name
+    if (!store) {
+      for (let i = 0; i < Math.min(5, lines.length); i++) {
+        const line = lines[i];
+        // Prefer lines with multiple words, letters, and not just numbers/symbols
+        if (line.length > 5 && line.match(/[a-zA-Z]/) && line.split(' ').length >= 2 && !line.match(/^(C\.I\.F|CIF|Id\s*Unic)/i)) {
+          store = line;
+          break;
+        }
+      }
+    }
+
+  
+    const highPriorityKeywords = ['plata cash', 'total'];
+    let candidateTotals: number[] = [];
+
+    for (const line of lines) {
+      const lowerLine = line.toLowerCase();
+      
+      // Check for lines that are very likely to be the total.
+      const isTotalLine = lowerLine.startsWith('total');
+      const isPlataCashLine = lowerLine.includes('plata cash');
+
+      if (isTotalLine || isPlataCashLine) {
+        // Exclude lines that are not the final total.
+        if (lowerLine.includes('economisit') || lowerLine.includes('tva')) {
+          continue;
+        }
+
+        const amountMatches = line.match(/\d+[.,]\d{2}/g);
+        if (amountMatches) {
+          for (const amountStr of amountMatches) {
+            const amount = parseFloat(amountStr.replace(',', '.'));
+            if (!isNaN(amount) && amount > 0) {
+              candidateTotals.push(amount);
+              console.log(`Found candidate total: ${amount} on line: "${line}"`);
+            }
+          }
+        }
+      }
+    }
+
+    if (candidateTotals.length > 0) {
+      // From the candidates, choose the largest one. This is typically the final total.
+      total = Math.max(...candidateTotals);
+      console.log(`Selected total from high-priority candidates: ${total}`);
+    }
+
+    // Pass 2: Fallback strategy if the high-priority search fails.
+    if (total === null) {
+      console.log("High-priority search failed. Moving to fallback strategy.");
+      const allAmounts: { amount: number, lineIndex: number }[] = [];
+      for (let i = 0; i < lines.length; i++) {
+        const amountMatches = lines[i].match(/\d+[.,]\d{2}/g);
+        if (amountMatches) {
+          for (const amountStr of amountMatches) {
+            const amount = parseFloat(amountStr.replace(',', '.'));
+            if (!isNaN(amount) && amount > 0) {
+              allAmounts.push({ amount, lineIndex: i });
+            }
+          }
+        }
+      }
+
+      if (allAmounts.length > 0) {
+        // Look for the largest amount in the bottom third of the receipt.
+        const bottomThirdStartIndex = Math.floor(lines.length * 0.67);
+        const bottomAmounts = allAmounts.filter(item => item.lineIndex >= bottomThirdStartIndex);
+
+        if (bottomAmounts.length > 0) {
+          total = Math.max(...bottomAmounts.map(item => item.amount));
+          console.log(`Selected total from bottom-third fallback: ${total}`);
+        } else {
+          // If no amounts in the bottom third, take the largest overall.
+          total = Math.max(...allAmounts.map(item => item.amount));
+          console.log(`Selected total from largest-overall fallback: ${total}`);
+        }
+      }
+    }
+
+    console.log('Extracted store:', store, 'total:', total); // Debug log
+
+    return { store, total };
   };
 
   // Currency conversion functions
@@ -685,17 +803,18 @@ const Transactions = () => {
             </div>
             <div className="form-group">
               <label>Budget</label>
-              <select
-                value={newTransaction.budgetId}
-                onChange={async (e) => {
-                  setNewTransaction({...newTransaction, budgetId: e.target.value});
+              <BudgetSelector
+                budgets={budgets}
+                selectedBudgetId={newTransaction.budgetId}
+                onChange={async (budgetId) => {
+                  setNewTransaction({...newTransaction, budgetId: budgetId || ""});
                   setBudgetError(null); // Clear error when budget changes
                   
                   // Auto-calculate conversion when budget changes
-                  if (isMultiCurrency && newTransaction.amount && e.target.value) {
+                  if (isMultiCurrency && newTransaction.amount && budgetId) {
                     const amount = parseFloat(newTransaction.amount.replace(/[, ]+/g, ""));
                     if (!isNaN(amount) && amount !== 0) {
-                      const selectedBudget = budgets.find(budget => budget.id === e.target.value);
+                      const selectedBudget = budgets.find(budget => budget.id === budgetId);
                       const budgetCurrency = selectedBudget?.currency || 'USD';
                       
                       if (selectedCurrency !== budgetCurrency) {
@@ -725,42 +844,10 @@ const Transactions = () => {
                     }
                   }
                 }}
+                placeholder="Select a budget"
                 required={false}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '2px solid #1e293b',
-                  borderRadius: '0.375rem',
-                  fontSize: '1rem',
-                  backgroundColor: '#ffffff',
-                  color: '#1e293b',
-                  fontWeight: 500,
-                  outline: 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="" style={{ color: '#6b7280', fontStyle: 'italic' }}>
-                  Select a budget
-                </option>
-                {budgets.map((budget: any) => {
-                  const remaining = budget.amount - (budget.spent || 0);
-                  const isOverBudget = remaining < 0;
-                  return (
-                    <option 
-                      key={budget.id} 
-                      value={budget.id}
-                      style={{ 
-                        color: '#1e293b', 
-                        fontWeight: 500,
-                        backgroundColor: '#ffffff',
-                        padding: '0.5rem'
-                      }}
-                    >
-                      💰 {budget.name} ({budget.category}) - Budget: {formatCurrency(budget.amount, budget.currency || 'USD')} | Spent: {formatCurrency(budget.spent || 0, budget.currency || 'USD')} | {isOverBudget ? '⚠️ Over by' : 'Remaining'}: {formatCurrency(Math.abs(remaining), budget.currency || 'USD')}
-                    </option>
-                  );
-                })}
-              </select>
+                showDetails={true}
+              />
             </div>
             <div className="form-group recurring-option" style={{marginBottom: isRecurring ? 0 : '1rem'}}>
               <label className="checkbox-label">

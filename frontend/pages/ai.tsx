@@ -9,7 +9,7 @@ const PageLayout = dynamic(() => import('../src/components/templates/PageLayout'
 });
 
 const Heading = dynamic(() => import('../src/components/atoms/Headings/Heading'));
-const Button = dynamic(() => import('../src/components/atoms/Button/Button'));
+const Button = dynamic(() => import('../src/components/atoms/Button'));
 
 const AI = () => {
   const [hasConsent, setHasConsent] = useState(true);
@@ -418,54 +418,97 @@ const AI = () => {
         }
         
         /* Dark mode styles */
-        :global(.dark-mode) .ai-header {
+        .dark-mode .ai-header {
           border-color: #374151;
         }
         
-        :global(.dark-mode) .ai-header h1 {
-          color: #f8fafc;
+        .dark-mode .ai-header h1 {
+          color: #ffffff !important;
         }
         
-        :global(.dark-mode) .ai-card-title,
-        :global(.dark-mode) .ai-card-insight-title {
-          color: #fff !important;
+        .dark-mode .ai-card-title,
+        .dark-mode .ai-card-insight-title {
+          color: #ffffff !important;
         }
         
-        :global(.dark-mode) .ai-suggestion-card {
+        .dark-mode .ai-card-title h3,
+        .dark-mode .ai-card-insight-title h2,
+        .dark-mode .ai-header h1,
+        .dark-mode h1,
+        .dark-mode h2,
+        .dark-mode h3 {
+          color: #ffffff !important;
+        }
+        
+        .dark-mode .ai-suggestion-card {
           background: #1e293b !important;
           border-color: #374151 !important;
-          color: #fff !important;
+          color: #ffffff !important;
         }
         
-        :global(.dark-mode) .analysis-controls {
+        .dark-mode .analysis-controls {
           background: #1e293b;
           border-color: #374151;
         }
         
-        :global(.dark-mode) .analysis-controls p {
-          color: #cbd5e1;
+        .dark-mode .analysis-controls p,
+        .dark-mode .analysis-controls * {
+          color: #ffffff !important;
         }
         
-        :global(.dark-mode) .default-content {
+        .dark-mode .default-content {
           background: #064e3b;
           border-color: #10b981;
         }
         
-        :global(.dark-mode) .default-description {
-          color: #6ee7b7;
+        .dark-mode .default-description,
+        .dark-mode .default-content *,
+        .dark-mode .default-content p {
+          color: #ffffff !important;
         }
         
-        :global(.dark-mode) .privacy-warning {
+        .dark-mode .privacy-warning {
           background: #78350f;
           border-color: #fbbf24;
         }
         
-        :global(.dark-mode) .privacy-warning h2 {
-          color: #fde68a;
+        .dark-mode .privacy-warning h2,
+        .dark-mode .privacy-warning * {
+          color: #ffffff !important;
         }
         
-        :global(.dark-mode) .privacy-warning p {
-          color: #fde68a;
+        .dark-mode .privacy-warning p {
+          color: #ffffff !important;
+        }
+        
+        .dark-mode .error-message {
+          background: #7f1d1d;
+          border-color: #dc2626;
+        }
+        
+        .dark-mode .error-message p,
+        .dark-mode .error-message * {
+          color: #ffffff !important;
+        }
+        
+        .dark-mode .loading-message {
+          background: #1e3a8a;
+          border-color: #3b82f6;
+        }
+        
+        .dark-mode .loading-message p,
+        .dark-mode .loading-message * {
+          color: #ffffff !important;
+        }
+        
+        .dark-mode .service-warning {
+          background: #78350f;
+          border-color: #f59e0b;
+        }
+        
+        .dark-mode .service-warning p,
+        .dark-mode .service-warning * {
+          color: #ffffff !important;
         }
         
         .ai-container {
@@ -496,6 +539,49 @@ const AI = () => {
           justify-content: center;
           align-items: flex-start;
           min-height: 60vh;
+        }
+
+        .dark-mode .ai-container {
+          color: #ffffff;
+        }
+        
+        .dark-mode .ai-header h1 {
+          color: #ffffff !important;
+        }
+        
+        /* Force all text to be white in dark mode */
+        .dark-mode * {
+          color: #ffffff !important;
+        }
+        
+        .dark-mode p,
+        .dark-mode span,
+        .dark-mode div,
+        .dark-mode b,
+        .dark-mode strong,
+        .dark-mode em,
+        .dark-mode i {
+          color: #ffffff !important;
+        }
+        
+        .dark-mode .ai-suggestion-card *,
+        .dark-mode .ai-suggestion-card p,
+        .dark-mode .ai-suggestion-card span,
+        .dark-mode .ai-suggestion-card b {
+          color: #ffffff !important;
+        }
+        
+        .dark-mode .fallback-tips *,
+        .dark-mode .fallback-tips p,
+        .dark-mode .fallback-tips span,
+        .dark-mode .fallback-tips b {
+          color: #ffffff !important;
+        }
+        
+        .dark-mode .analysis-controls *,
+        .dark-mode .default-content *,
+        .dark-mode .ai-results * {
+          color: #ffffff !important;
         }
       `}</style>
     </PageLayout>
