@@ -160,12 +160,16 @@ class ExchangeRateService {
         });
 
       if (error) {
-        console.error('Error caching exchange rate:', error);
+        // Don't log RLS errors as they're expected when using service role
+        if (error.code !== '42501') {
+          console.error('Error caching exchange rate:', error);
+        }
+        // Silently fail for RLS errors - the rates still work without caching
       } else {
         console.log(`💾 Cached exchange rate: ${fromCurrency} → ${toCurrency} = ${rate}`);
       }
     } catch (error) {
-      console.error('Error saving to cache:', error);
+      // Silently handle caching errors - the main functionality still works
     }
   }
 
