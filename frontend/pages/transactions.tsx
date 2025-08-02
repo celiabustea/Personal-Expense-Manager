@@ -395,7 +395,11 @@ const Transactions = () => {
 
     // Use converted amount if currency conversion was applied, but preserve the original sign
     const finalAmount = currencyConversion ? currencyConversion.convertedAmount : amount;
-    const transactionCurrency = isMultiCurrency ? selectedCurrency : (selectedBudget?.currency || 'USD');
+    // Important: When currency conversion is applied, use the budget's currency (converted currency)
+    // not the original selected currency
+    const transactionCurrency = currencyConversion 
+      ? (selectedBudget?.currency || 'USD')  // Use budget currency when conversion applied
+      : (isMultiCurrency ? selectedCurrency : (selectedBudget?.currency || 'USD'));
 
     const transaction = {
       id: Date.now().toString(),
@@ -419,16 +423,34 @@ const Transactions = () => {
     } else {
       // Use async thunk to save to Supabase
       if (user) {
+        // For currency conversion transactions, we need to save the original amount and currency
+        // along with the converted amount for budget tracking
+        const transactionForSupabase = currencyConversion ? {
+          // Store original amount and currency in main fields
+          amount: currencyConversion.originalAmount,
+          currency: selectedCurrency,
+          // Store converted amount and budget currency in exchange fields
+          budgetAmount: currencyConversion.convertedAmount,
+          budgetCurrency: selectedBudget?.currency || 'USD',
+          isExchange: true,
+          exchangeRate: currencyConversion.exchangeRate,
+          description: newTransaction.description,
+          category: transaction.category,
+          date: newTransaction.date,
+          budgetId: newTransaction.budgetId,
+          type: (currencyConversion.originalAmount >= 0 ? 'income' : 'expense') as 'income' | 'expense'
+        } : {
+          amount: transaction.amount,
+          currency: transaction.currency,
+          description: transaction.description,
+          category: transaction.category,
+          date: transaction.date,
+          budgetId: transaction.budgetId,
+          type: (amount >= 0 ? 'income' : 'expense') as 'income' | 'expense'
+        };
+
         dispatch(addTransactionToSupabase({ 
-          transaction: {
-            amount: transaction.amount,
-            description: transaction.description,
-            category: transaction.category,
-            date: transaction.date,
-            budgetId: transaction.budgetId,
-            currency: transaction.currency,
-            type: amount >= 0 ? 'income' : 'expense'
-          }, 
+          transaction: transactionForSupabase, 
           userId: user.id 
         }));
         // Note: Don't update budget locally when using Supabase - database triggers handle this
@@ -530,10 +552,20 @@ const Transactions = () => {
                   </div>
                   <div className="transaction-amount">
                     <CurrencyDisplay 
-                      amount={transaction.amount} 
-                      currency={transaction.currency || 'USD'}
+                      amount={transaction.isExchange && transaction.budgetAmount !== undefined ? transaction.budgetAmount : transaction.amount} 
+                      currency={transaction.isExchange && transaction.budgetCurrency ? transaction.budgetCurrency : (transaction.currency || 'USD')}
                       showCurrencyTag={true}
                     />
+                    {transaction.isExchange && (
+                      <div style={{ 
+                        fontSize: '0.75rem', 
+                        color: '#6b7280', 
+                        marginTop: '0.25rem',
+                        textAlign: 'right'
+                      }}>
+                        Original: {transaction.amount.toFixed(2)} {transaction.currency}
+                      </div>
+                    )}
                   </div>
                   <button
                     className="delete-transaction-btn"
