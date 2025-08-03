@@ -8,6 +8,9 @@ interface Transaction {
   currency?: string;
   originalAmount?: number;
   originalCurrency?: string;
+  isExchange?: boolean;
+  budgetAmount?: number;
+  budgetCurrency?: string;
 }
 
 interface Budget {
@@ -199,11 +202,13 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
 
     // Process transactions
     transactions.forEach(transaction => {
-      const currency = transaction.currency || 'USD';
+      // For currency exchange transactions, use budget amount and currency, otherwise use transaction amount and currency
+      const effectiveAmount = transaction.isExchange && transaction.budgetAmount !== undefined ? transaction.budgetAmount : transaction.amount;
+      const effectiveCurrency = transaction.isExchange && transaction.budgetCurrency ? transaction.budgetCurrency : (transaction.currency || 'USD');
       
-      if (!totals[currency]) {
-        totals[currency] = {
-          currency,
+      if (!totals[effectiveCurrency]) {
+        totals[effectiveCurrency] = {
+          currency: effectiveCurrency,
           totalSpending: 0,
           totalIncome: 0,
           netIncome: 0,
@@ -213,12 +218,12 @@ const MultiCurrencyTotals: React.FC<MultiCurrencyTotalsProps> = ({
         };
       }
 
-      if (transaction.amount < 0) {
-        totals[currency].totalSpending += Math.abs(transaction.amount);
+      if (effectiveAmount < 0) {
+        totals[effectiveCurrency].totalSpending += Math.abs(effectiveAmount);
       } else {
-        totals[currency].totalIncome += transaction.amount;
+        totals[effectiveCurrency].totalIncome += effectiveAmount;
       }
-      totals[currency].netIncome += transaction.amount;
+      totals[effectiveCurrency].netIncome += effectiveAmount;
     });
 
     // Process budgets

@@ -141,14 +141,28 @@ export const selectBudgetsWithCalculatedSpent = createSelector(
       });
       
       // Calculate spent amount (only from negative transactions - expenses)
+      // For currency exchange transactions, use budgetAmount instead of amount
       const calculatedSpent = matchingTransactions
-        .filter(trans => trans.amount < 0)
-        .reduce((sum, trans) => sum + Math.abs(trans.amount), 0);
+        .filter(trans => {
+          const effectiveAmount = trans.isExchange && trans.budgetAmount !== undefined ? trans.budgetAmount : trans.amount;
+          return effectiveAmount < 0;
+        })
+        .reduce((sum, trans) => {
+          const effectiveAmount = trans.isExchange && trans.budgetAmount !== undefined ? trans.budgetAmount : trans.amount;
+          return sum + Math.abs(effectiveAmount);
+        }, 0);
       
       // Calculate budget increase (from positive transactions - income)
+      // For currency exchange transactions, use budgetAmount instead of amount
       const budgetIncrease = matchingTransactions
-        .filter(trans => trans.amount > 0)
-        .reduce((sum, trans) => sum + trans.amount, 0);
+        .filter(trans => {
+          const effectiveAmount = trans.isExchange && trans.budgetAmount !== undefined ? trans.budgetAmount : trans.amount;
+          return effectiveAmount > 0;
+        })
+        .reduce((sum, trans) => {
+          const effectiveAmount = trans.isExchange && trans.budgetAmount !== undefined ? trans.budgetAmount : trans.amount;
+          return sum + effectiveAmount;
+        }, 0);
       
       return {
         ...budget,

@@ -5,6 +5,9 @@ interface Transaction {
   id: string;
   amount: number;
   currency?: string;
+  isExchange?: boolean;
+  budgetAmount?: number;
+  budgetCurrency?: string;
 }
 
 interface CurrencySpendingSummaryProps {
@@ -22,19 +25,21 @@ const CurrencySpendingSummary: React.FC<CurrencySpendingSummaryProps> = ({ trans
     const spending: { [currency: string]: CurrencySpending } = {};
 
     transactions.forEach(transaction => {
-      if (transaction.amount < 0) { // Only include expenses
-        const currency = transaction.currency || 'USD';
-        
-        if (!spending[currency]) {
-          spending[currency] = {
-            currency,
+      // For currency exchange transactions, use budget amount and currency, otherwise use transaction amount and currency
+      const effectiveAmount = transaction.isExchange && transaction.budgetAmount !== undefined ? transaction.budgetAmount : transaction.amount;
+      const effectiveCurrency = transaction.isExchange && transaction.budgetCurrency ? transaction.budgetCurrency : (transaction.currency || 'USD');
+      
+      if (effectiveAmount < 0) { // Only include expenses
+        if (!spending[effectiveCurrency]) {
+          spending[effectiveCurrency] = {
+            currency: effectiveCurrency,
             totalSpent: 0,
             transactionCount: 0
           };
         }
 
-        spending[currency].totalSpent += Math.abs(transaction.amount);
-        spending[currency].transactionCount += 1;
+        spending[effectiveCurrency].totalSpent += Math.abs(effectiveAmount);
+        spending[effectiveCurrency].transactionCount += 1;
       }
     });
 
