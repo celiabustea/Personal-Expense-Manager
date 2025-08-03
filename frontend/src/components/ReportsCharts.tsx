@@ -109,7 +109,7 @@ const ReportsCharts: React.FC<ReportsChartsProps> = ({
   return (
     <div className="charts-grid">
       {/* Spending by Budget/Category for Selected Month - Pie Chart */}
-      <div className="chart-card">
+      <div className="chart-card chart-hover">
         <h3>Spending by Budget (Selected Month)</h3>
         {spendingByBudget.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>

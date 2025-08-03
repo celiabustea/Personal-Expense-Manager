@@ -3,6 +3,24 @@
   color: #94a3b8 !important;
   opacity: 1 !important;
 }
+
+/* Force light mode for the entire page when login template is present */
+body:has(.login-template-container),
+html:has(.login-template-container),
+body:has(.login-template-container).dark-mode,
+html:has(.login-template-container).dark-mode {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
+/* Force light mode for the entire page - fallback */
+.login-template-container ~ *,
+.login-template-container {
+  --color-background: #ffffff !important;
+  --color-text: #1e293b !important;
+  --color-primary: #1e293b !important;
+  --color-secondary: #64748b !important;
+}
 /* Login page styling for PageLayout integration */
 .login-container {
   display: flex;
@@ -88,6 +106,52 @@
 .form-input {
   background: #fff !important;
   color: #1e293b !important;
+}
+
+/* Login template specific input styling - always white */
+.login-template-input {
+  width: 100% !important;
+  padding: 12px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
+  font-size: 15px !important;
+  font-family: inherit !important;
+  background-color: #ffffff !important;
+  color: #374151 !important;
+  outline: none !important;
+  transition: border-color 0.2s ease !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+}
+
+.login-template-input:focus {
+  border-color: #9ca3af !important;
+}
+
+.login-template-input::placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+}
+
+/* Override dark mode for login template inputs */
+.dark-mode .login-template-input,
+html.dark-mode .login-template-input,
+body.dark-mode .login-template-input {
+  background-color: #ffffff !important;
+  color: #374151 !important;
+  border-color: #d1d5db !important;
+}
+
+.dark-mode .login-template-input:focus,
+html.dark-mode .login-template-input:focus,
+body.dark-mode .login-template-input:focus {
+  border-color: #9ca3af !important;
+}
+
+.dark-mode .login-template-input::placeholder,
+html.dark-mode .login-template-input::placeholder,
+body.dark-mode .login-template-input::placeholder {
+  color: #9ca3af !important;
 }
 
 input:-webkit-autofill,

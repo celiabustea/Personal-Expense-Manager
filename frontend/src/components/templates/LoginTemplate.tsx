@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import Lottie from 'lottie-react';
 // @ts-ignore
 import loginbg from '../../assets/loginbg.json';
+import { useDarkMode } from '../../contexts/DarkModeContext';
 // import { useLoading } from '../../contexts/LoadingContext';
 
 interface LoginTemplateProps {
@@ -28,24 +29,36 @@ const LoginTemplate: React.FC<LoginTemplateProps> = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const { signUp, signIn } = useAuth();
+  const { resetDarkMode } = useDarkMode();
   const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
     
-    // Force light mode on login page
+    // Force light mode on login page immediately and use dark mode context
+    resetDarkMode();
+    
+    // Additional force to ensure light mode
     document.documentElement.classList.remove('dark-mode');
     document.body.classList.remove('dark-mode');
     
-    // Cleanup when component unmounts - restore dark mode if it was enabled
+    // Also force light mode in root styles
+    document.documentElement.style.setProperty('--color-background', '#ffffff');
+    document.documentElement.style.setProperty('--color-text', '#1e293b');
+    
+    // Override any CSS custom properties that might be set by dark mode
+    document.documentElement.style.setProperty('--color-primary', '#1e293b');
+    document.documentElement.style.setProperty('--color-secondary', '#64748b');
+    
+    // Cleanup when component unmounts - don't restore anything, let other pages handle it
     return () => {
-      const savedDarkMode = localStorage.getItem('darkMode');
-      if (savedDarkMode === 'true') {
-        document.documentElement.classList.add('dark-mode');
-        document.body.classList.add('dark-mode');
-      }
+      // Remove the forced styles
+      document.documentElement.style.removeProperty('--color-background');
+      document.documentElement.style.removeProperty('--color-text');
+      document.documentElement.style.removeProperty('--color-primary');
+      document.documentElement.style.removeProperty('--color-secondary');
     };
-  }, []);
+  }, [resetDarkMode]);
   
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,14 +111,15 @@ const LoginTemplate: React.FC<LoginTemplateProps> = () => {
   };
 
   return (
-    <div style={{
+    <div className="login-template-container" style={{
       position: 'fixed',
       top: 0,
       left: 0,
       width: '100vw',
       height: '100vh',
       overflow: 'hidden',
-      zIndex: 0
+      zIndex: 0,
+      backgroundColor: '#ffffff'
     }}>
       <Lottie
         animationData={loginbg}
@@ -184,16 +198,7 @@ const LoginTemplate: React.FC<LoginTemplateProps> = () => {
               onChange={handleChange}
               required
               disabled={loading}
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '2px solid #e2e8f0',
-                borderRadius: '8px',
-                fontSize: '15px',
-                fontFamily: 'inherit',
-                backgroundColor: '#ffffff',
-                color: '#1e293b'
-              }}
+              className="login-template-input"
             />
           )}
           <input
@@ -204,16 +209,7 @@ const LoginTemplate: React.FC<LoginTemplateProps> = () => {
             onChange={handleChange}
             required
             disabled={loading}
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: '2px solid #e2e8f0',
-              borderRadius: '8px',
-              fontSize: '15px',
-              fontFamily: 'inherit',
-              backgroundColor: '#ffffff',
-              color: '#1e293b'
-            }}
+            className="login-template-input"
           />
           <div style={{ position: 'relative' }}>
             <input
@@ -224,16 +220,8 @@ const LoginTemplate: React.FC<LoginTemplateProps> = () => {
               onChange={handleChange}
               required
               disabled={loading}
-              style={{
-                width: '100%',
-                padding: '12px 40px 12px 12px',
-                border: '2px solid #e2e8f0',
-                borderRadius: '8px',
-                fontSize: '15px',
-                fontFamily: 'inherit',
-                backgroundColor: '#ffffff',
-                color: '#1e293b'
-              }}
+              className="login-template-input"
+              style={{ paddingRight: '40px' }}
             />
             <span
               onClick={() => setShowPassword(prev => !prev)}

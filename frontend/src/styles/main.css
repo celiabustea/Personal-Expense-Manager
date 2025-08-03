@@ -155,7 +155,8 @@ body.dark-mode {
 .dark-mode .transactions-container,
 .dark-mode .budgets-container,
 .dark-mode .reports-container,
-.dark-mode .settings-container {
+.dark-mode .settings-container,
+.dark-mode .ai-container {
   background-color: #0f172a !important;
   color: #f8fafc !important;
 }
@@ -165,7 +166,8 @@ body.dark-mode {
 .dark-mode .transactions-header h1,
 .dark-mode .budgets-header h1,
 .dark-mode .reports-header h1,
-.dark-mode .settings-header h1 {
+.dark-mode .settings-header h1,
+.dark-mode .ai-header h1 {
   color: #f8fafc !important;
 }
 
@@ -569,4 +571,71 @@ body.dark-mode {
 
 .dark-mode .progress-bar[style*="background-color: #ef4444"] {
   background-color: #f87171 !important;
+}
+
+/* Dashboard currency cards - match budget page styling in dark mode */
+.dark-mode .dashboard-summary .summary-card:first-child > div[style*="background-color: #f0f9ff"],
+.dark-mode .dashboard-summary .summary-card:first-child > div[style*="backgroundColor"],
+.dark-mode .dashboard-summary .summary-card:first-child div[style*="#f0f9ff"] {
+  background-color: #1e3a8a !important;
+  border: 1px solid #3b82f6 !important;
+}
+
+.dark-mode .dashboard-summary .summary-card:nth-child(2) > div[style*="background-color: #fef2f2"],
+.dark-mode .dashboard-summary .summary-card:nth-child(2) > div[style*="backgroundColor"],
+.dark-mode .dashboard-summary .summary-card:nth-child(2) div[style*="#fef2f2"] {
+  background-color: #7f1d1d !important;
+  border: 1px solid #ef4444 !important;
+}
+
+/* More specific selectors for all child divs with these background colors */
+.dark-mode .dashboard-container div[style*="background-color: #f0f9ff"],
+.dark-mode .dashboard-container div[style*="#f0f9ff"] {
+  background-color: #1e3a8a !important;
+  border-color: #3b82f6 !important;
+}
+
+.dark-mode .dashboard-container div[style*="background-color: #fef2f2"],
+.dark-mode .dashboard-container div[style*="#fef2f2"] {
+  background-color: #7f1d1d !important;
+  border-color: #ef4444 !important;
+}
+
+/* Dashboard currency card text colors in dark mode */
+.dark-mode .dashboard-summary .summary-card div[style*="#f0f9ff"] span[style*="color: #0369a1"],
+.dark-mode .dashboard-summary .summary-card div[style*="#f0f9ff"] span[style*="background-color: #bae6fd"],
+.dark-mode .dashboard-container div[style*="#f0f9ff"] span[style*="#0369a1"],
+.dark-mode .dashboard-container div[style*="#f0f9ff"] span[style*="#bae6fd"] {
+  color: #93c5fd !important;
+  background-color: #1e40af !important;
+}
+
+.dark-mode .dashboard-summary .summary-card div[style*="#fef2f2"] span[style*="color: #dc2626"],
+.dark-mode .dashboard-summary .summary-card div[style*="#fef2f2"] span[style*="background-color: #fecaca"],
+.dark-mode .dashboard-container div[style*="#fef2f2"] span[style*="#dc2626"],
+.dark-mode .dashboard-container div[style*="#fef2f2"] span[style*="#fecaca"] {
+  color: #fca5a5 !important;
+  background-color: #dc2626 !important;
+}
+
+/* Currency and amount text colors - more specific */
+.dark-mode .dashboard-summary .summary-card div span[style*="color: #000000"],
+.dark-mode .dashboard-container div span[style*="color: #000000"],
+.dark-mode .dashboard-container div[style*="color: #000000"] {
+  color: #f8fafc !important;
+}
+
+/* Dark mode for MantraCard component */
+.dark-mode .mantraCard {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+  border-left-color: #3b82f6 !important;
+}
+
+.dark-mode .mantraCardTitle {
+  color: #f8fafc !important;
+}
+
+.dark-mode .mantraCardText {
+  color: #f8fafc !important;
 }

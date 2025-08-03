@@ -34,17 +34,35 @@ const BudgetCard = dynamic(() => import('../src/components/molecules/BudgetCard/
 
 const Dashboard = () => {
   const [isHydrated, setIsHydrated] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   
   useEffect(() => {
     // Set hydrated to true after component mounts on client
     setIsHydrated(true);
+    
+    // Dark mode detection
+    const checkDarkMode = () => {
+      const isDark = document.documentElement.classList.contains('dark-mode') || 
+                     document.body.classList.contains('dark-mode');
+      setIsDarkMode(isDark);
+    };
+
+    checkDarkMode();
+    
+    // Create observer for class changes
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
   }, []);
   
   // Use memoized selectors for better performance
   const recentTransactions = useSelector(selectRecentTransactions).slice(0, 3);
   const totalBalance = useSelector(selectTotalBalance);
   const monthlySpending = useSelector(selectMonthlySpending);
-  const budgets = useSelector(selectBudgetsWithCalculatedSpent);
+  const allBudgets = useSelector(selectBudgetsWithCalculatedSpent);
+  const budgets = allBudgets.slice(0, 3); // Show only last 3 budgets
   const allTransactions = useSelector(selectAllTransactions);
 
   // Calculate currency-specific data
@@ -53,7 +71,7 @@ const Dashboard = () => {
     const spendingByCurrency: { [key: string]: number } = {};
 
     // Group budgets by currency
-    budgets.forEach(budget => {
+    allBudgets.forEach(budget => {
       const currency = budget.currency || 'USD';
       if (!budgetsByCurrency[currency]) {
         budgetsByCurrency[currency] = { totalBudgeted: 0, count: 0 };
@@ -86,7 +104,7 @@ const Dashboard = () => {
       totalBalance: (budgetsByCurrency[currency]?.totalBudgeted || 0) - (spendingByCurrency[currency] || 0),
       budgetCount: budgetsByCurrency[currency]?.count || 0
     })).sort((a, b) => a.currency.localeCompare(b.currency));
-  }, [budgets, allTransactions]);
+  }, [allBudgets, allTransactions]);
 
   const formatCurrency = (amount: number, currency = 'USD') => {
     return amount.toLocaleString('en-US', {
@@ -94,6 +112,56 @@ const Dashboard = () => {
       currency: currency
     });
   };
+
+  // Dark mode aware styles for currency cards
+  const getBalanceCardStyle = () => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '0.5rem 0.75rem',
+    backgroundColor: isDarkMode ? '#1e3a8a' : '#f0f9ff',
+    borderRadius: '0.375rem',
+    border: `1px solid ${isDarkMode ? '#3b82f6' : '#bae6fd'}`,
+    marginTop: '0.5rem'
+  });
+
+  const getSpendingCardStyle = () => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '0.5rem 0.75rem',
+    backgroundColor: isDarkMode ? '#7f1d1d' : '#fef2f2',
+    borderRadius: '0.375rem',
+    border: `1px solid ${isDarkMode ? '#ef4444' : '#fecaca'}`,
+    marginTop: '0.5rem'
+  });
+
+  const getCurrencyTextStyle = () => ({
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    color: isDarkMode ? '#f8fafc' : '#000000'
+  });
+
+  const getBalanceTagStyle = () => ({
+    fontSize: '0.75rem',
+    color: isDarkMode ? '#93c5fd' : '#0369a1',
+    backgroundColor: isDarkMode ? '#1e40af' : '#bae6fd',
+    padding: '0.125rem 0.375rem',
+    borderRadius: '0.25rem'
+  });
+
+  const getSpendingTagStyle = () => ({
+    fontSize: '0.75rem',
+    color: isDarkMode ? '#fca5a5' : '#dc2626',
+    backgroundColor: isDarkMode ? '#dc2626' : '#fecaca',
+    padding: '0.125rem 0.375rem',
+    borderRadius: '0.25rem'
+  });
+
+  const getAmountTextStyle = () => ({
+    fontWeight: 600,
+    color: isDarkMode ? '#f8fafc' : '#000000'
+  });
 
   const handleDeleteTransaction = (id: string) => {
     // Handle transaction deletion
@@ -116,77 +184,39 @@ const Dashboard = () => {
             <Heading level={3}>Total Balance by Currency</Heading>
             <span className="balance-subtitle">Budget remaining</span>
             {currencyData.length === 0 ? (
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0.5rem 0.75rem',
-                backgroundColor: '#f0f9ff',
-                borderRadius: '0.375rem',
-                border: '1px solid #bae6fd',
-                marginTop: '0.5rem'
-              }}>
+              <div style={getBalanceCardStyle()}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem'
                 }}>
-                  <span style={{
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
-                    color: '#000000'
-                  }}>
+                  <span style={getCurrencyTextStyle()}>
                     USD
                   </span>
-                  <span style={{
-                    fontSize: '0.75rem',
-                    color: '#0369a1',
-                    backgroundColor: '#bae6fd',
-                    padding: '0.125rem 0.375rem',
-                    borderRadius: '0.25rem'
-                  }}>
+                  <span style={getBalanceTagStyle()}>
                     0 budgets
                   </span>
                 </div>
-                <div style={{ fontWeight: 600, color: '#000000' }}>
+                <div style={getAmountTextStyle()}>
                   $0.00
                 </div>
               </div>
             ) : (
               currencyData.map(data => (
-                <div key={data.currency} style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '0.5rem 0.75rem',
-                  backgroundColor: '#f0f9ff',
-                  borderRadius: '0.375rem',
-                  border: '1px solid #bae6fd',
-                  marginTop: '0.5rem'
-                }}>
+                <div key={data.currency} style={getBalanceCardStyle()}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem'
                   }}>
-                    <span style={{
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      color: '#000000'
-                    }}>
+                    <span style={getCurrencyTextStyle()}>
                       {data.currency}
                     </span>
-                    <span style={{
-                      fontSize: '0.75rem',
-                      color: '#0369a1',
-                      backgroundColor: '#bae6fd',
-                      padding: '0.125rem 0.375rem',
-                      borderRadius: '0.25rem'
-                    }}>
+                    <span style={getBalanceTagStyle()}>
                       {data.budgetCount} budgets
                     </span>
                   </div>
-                  <div style={{ fontWeight: 600, color: '#000000' }}>
+                  <div style={getAmountTextStyle()}>
                     <CurrencyDisplay 
                       amount={data.totalBalance} 
                       currency={data.currency}
@@ -203,77 +233,39 @@ const Dashboard = () => {
             <Heading level={3}>Monthly Spending by Currency</Heading>
             <span className="spending-subtitle">This month</span>
             {currencyData.length === 0 ? (
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0.5rem 0.75rem',
-                backgroundColor: '#fef2f2',
-                borderRadius: '0.375rem',
-                border: '1px solid #fecaca',
-                marginTop: '0.5rem'
-              }}>
+              <div style={getSpendingCardStyle()}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem'
                 }}>
-                  <span style={{
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
-                    color: '#000000'
-                  }}>
+                  <span style={getCurrencyTextStyle()}>
                     USD
                   </span>
-                  <span style={{
-                    fontSize: '0.75rem',
-                    color: '#dc2626',
-                    backgroundColor: '#fecaca',
-                    padding: '0.125rem 0.375rem',
-                    borderRadius: '0.25rem'
-                  }}>
+                  <span style={getSpendingTagStyle()}>
                     0 budgets
                   </span>
                 </div>
-                <div style={{ fontWeight: 600, color: '#000000' }}>
+                <div style={getAmountTextStyle()}>
                   $0.00
                 </div>
               </div>
             ) : (
               currencyData.map(data => (
-                <div key={data.currency} style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '0.5rem 0.75rem',
-                  backgroundColor: '#fef2f2',
-                  borderRadius: '0.375rem',
-                  border: '1px solid #fecaca',
-                  marginTop: '0.5rem'
-                }}>
+                <div key={data.currency} style={getSpendingCardStyle()}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem'
                   }}>
-                    <span style={{
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      color: '#000000'
-                    }}>
+                    <span style={getCurrencyTextStyle()}>
                       {data.currency}
                     </span>
-                    <span style={{
-                      fontSize: '0.75rem',
-                      color: '#dc2626',
-                      backgroundColor: '#fecaca',
-                      padding: '0.125rem 0.375rem',
-                      borderRadius: '0.25rem'
-                    }}>
+                    <span style={getSpendingTagStyle()}>
                       {data.budgetCount} budgets
                     </span>
                   </div>
-                  <div style={{ fontWeight: 600, color: '#000000' }}>
+                  <div style={getAmountTextStyle()}>
                     <CurrencyDisplay 
                       amount={data.totalSpending} 
                       currency={data.currency}
@@ -287,7 +279,7 @@ const Dashboard = () => {
 
           <div className="summary-card">
             <Heading level={3}>Active Budgets</Heading>
-            <p>{isHydrated ? budgets.length : 0}</p>
+            <p>{isHydrated ? allBudgets.length : 0}</p>
             <span className="budgets-subtitle">Categories</span>
           </div>
         </div>

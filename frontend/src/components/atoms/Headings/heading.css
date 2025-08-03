@@ -2,6 +2,13 @@
   font-family: var(--font-primary);
   color: var(--color-text);
   margin-bottom: 1rem;
+  transition: transform 0.3s ease, text-shadow 0.3s ease;
+  cursor: default;
+}
+
+.heading:hover {
+  transform: translateY(-4px);
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .heading-1 {
@@ -59,4 +66,25 @@
   .heading-3 {
     font-size: 1.25rem;
   }
+}
+
+/* Dark mode hover effects */
+.dark-mode .heading:hover {
+  text-shadow: 0 4px 8px rgba(71, 85, 105, 0.3);
+}
+
+/* Enhanced hover effects for different heading levels */
+.heading-1:hover {
+  transform: translateY(-5px);
+}
+
+.heading-2:hover {
+  transform: translateY(-4px);
+}
+
+.heading-3:hover,
+.heading-4:hover,
+.heading-5:hover,
+.heading-6:hover {
+  transform: translateY(-3px);
 }

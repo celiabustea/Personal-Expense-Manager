@@ -148,6 +148,88 @@
 .dark-mode .reports-container p {
   color: #94a3b8 !important;
 }
+
+/* Dark mode for view mode buttons */
+.dark-mode .view-mode-button {
+  background-color: #334155 !important;
+  color: #94a3b8 !important;
+  border: 1px solid #475569 !important;
+}
+
+.dark-mode .view-mode-button:hover {
+  background-color: #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .view-mode-button.active,
+.dark-mode .view-mode-button[data-active="true"] {
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+  border-color: #f8fafc !important;
+}
+
+.dark-mode .view-mode-button.active:hover,
+.dark-mode .view-mode-button[data-active="true"]:hover {
+  background-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+/* Target all buttons in dark mode within the reports header */
+.dark-mode div[style*="border-radius: 0.375rem"] button {
+  background-color: #475569 !important;
+  color: #d1d5db !important;
+  border: 1px solid #64748b !important;
+}
+
+.dark-mode div[style*="border-radius: 0.375rem"] button:hover {
+  background-color: #64748b !important;
+  color: #f1f5f9 !important;
+}
+
+/* Style the active button specifically */
+.dark-mode div[style*="border-radius: 0.375rem"] button[style*="background-color"][style*="59, 130, 246"],
+.dark-mode div[style*="border-radius: 0.375rem"] button[style*="background-color"][style*="#3b82f6"] {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border: 2px solid #3b82f6 !important;
+  font-weight: 600 !important;
+}
+
+/* More specific selectors for ReportsHeader buttons - targeting exact colors from component */
+.dark-mode button[style*="background-color: rgb(59, 130, 246)"] {
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+  border: 1px solid #f8fafc !important;
+}
+
+.dark-mode button[style*="background-color: rgb(55, 65, 81)"] {
+  background-color: #374151 !important;
+  color: #d1d5db !important;
+}
+
+.dark-mode button[style*="background-color: rgb(55, 65, 81)"]:hover {
+  background-color: #475569 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Additional targeting for buttons with hex colors */
+.dark-mode button[style*="background-color: #3b82f6"] {
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+  border: 1px solid #f8fafc !important;
+}
+
+.dark-mode button[style*="background-color: #374151"] {
+  background-color: #374151 !important;
+  color: #d1d5db !important;
+}
+
+/* Override for active buttons in ReportsHeader specifically */
+.dark-mode div[style*="overflow: hidden"] button[style*="#3b82f6"] {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  box-shadow: 0 0 0 2px #3b82f6 !important;
+}
 .reports-container {
   padding: 2rem;
   position: relative;
@@ -191,12 +273,12 @@
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .summary-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
 }
 
 .summary-card h3 {
@@ -240,12 +322,12 @@
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .chart-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
 }
 
 .chart-card h3 {
@@ -293,6 +375,12 @@
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   border-radius: 12px;
   border: 1px solid #e5e7eb;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.insight-item:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .insight-metric {
@@ -396,4 +484,171 @@
   .chart-card h3 {
     font-size: 1.1rem;
   }
+}
+
+/* Hover effects for additional components */
+
+/* Reports header hover effect */
+.reports-header {
+  margin-bottom: 2.5rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 1.5rem;
+  text-align: left;
+  transition: transform 0.3s ease;
+}
+
+.reports-header:hover {
+  transform: translateY(-3px);
+}
+
+/* Month selector and form elements hover effects */
+input[type="month"] {
+  padding: 0.4rem 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="month"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Total spent month display hover effect */
+.total-spent-month {
+  transition: transform 0.3s ease;
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+
+.total-spent-month:hover {
+  transform: translateY(-2px);
+}
+
+/* Container hover effects for month selector and controls */
+div[style*="display:flex"][style*="gap:1.5rem"] {
+  transition: transform 0.3s ease;
+}
+
+div[style*="display:flex"][style*="gap:1.5rem"]:hover {
+  transform: translateY(-2px);
+}
+
+/* Empty state hover effect */
+div[style*="minHeight: '340px'"] {
+  transition: transform 0.3s ease;
+  border-radius: 12px;
+}
+
+div[style*="minHeight: '340px'"]:hover {
+  transform: translateY(-4px);
+}
+
+/* Multi-currency totals hover effect - target by common container patterns */
+div[style*="margin-bottom"][style*="padding"] {
+  transition: transform 0.3s ease;
+}
+
+div[style*="margin-bottom"][style*="padding"]:hover {
+  transform: translateY(-3px);
+}
+
+/* Additional chart containers and grids */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Add hover to chart grid containers */
+.charts-grid > * {
+  transition: transform 0.3s ease;
+}
+
+/* Insights container hover effects */
+.insights-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.insights-container > * {
+  transition: transform 0.3s ease;
+}
+
+/* Button hover effects for reports */
+button {
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Specific hover effects for reports page sections */
+
+/* Reports container main sections */
+.reports-container > * {
+  transition: transform 0.3s ease;
+}
+
+/* ReportsHeader component hover effect */
+div[style*="overflow: hidden"] {
+  transition: transform 0.3s ease;
+}
+
+div[style*="overflow: hidden"]:hover {
+  transform: translateY(-3px);
+}
+
+/* MultiCurrencyTotals hover effect - target by common patterns */
+div[class*="multi-currency"], 
+div[class*="currency-totals"],
+div[style*="background"][style*="border-radius"][style*="padding"] {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+div[class*="multi-currency"]:hover, 
+div[class*="currency-totals"]:hover,
+div[style*="background"][style*="border-radius"][style*="padding"]:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Target ReportsCharts wrapper */
+div[style*="minHeight"][style*="textAlign: center"] {
+  transition: transform 0.3s ease;
+}
+
+div[style*="minHeight"][style*="textAlign: center"]:hover {
+  transform: translateY(-4px);
+}
+
+/* Loading states hover effect */
+div[style*="Loading"] {
+  transition: transform 0.3s ease;
+}
+
+div[style*="Loading"]:hover {
+  transform: translateY(-2px);
+}
+
+/* Dark mode hover effects - enhance existing dark mode styles */
+.dark-mode .summary-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(71, 85, 105, 0.3);
+}
+
+.dark-mode .chart-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(71, 85, 105, 0.3);
+}
+
+.dark-mode .insight-item:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(71, 85, 105, 0.25);
 }

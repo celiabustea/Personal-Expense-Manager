@@ -20,6 +20,7 @@ const AI = () => {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [aiServiceHealth, setAiServiceHealth] = useState({
     ollamaAvailable: false,
     mistralInstalled: false,
@@ -33,6 +34,22 @@ const AI = () => {
   useEffect(() => {
     setHasConsent(getAiDataUsageConsent());
     checkAIHealth();
+    
+    // Dark mode detection
+    const checkDarkMode = () => {
+      const isDark = document.documentElement.classList.contains('dark-mode') || 
+                     document.body.classList.contains('dark-mode');
+      setIsDarkMode(isDark);
+    };
+
+    checkDarkMode();
+    
+    // Create observer for class changes
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
   }, []);
 
   const checkAIHealth = async () => {
@@ -46,6 +63,46 @@ const AI = () => {
     } catch (err) {
       console.error('Failed to check AI service health:', err);
     }
+  };
+
+  // Get dynamic styles for suggestion cards
+  const getSuggestionCardStyle = () => {
+    if (isDarkMode) {
+      return {
+        background: 'transparent',
+        border: '2px solid #475569',
+        color: '#ffffff',
+        boxShadow: 'none',
+        borderRadius: '8px',
+        padding: '1.2rem 1.5rem',
+        fontSize: '1.08rem',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '0.7rem',
+        lineHeight: '1.6',
+        transition: 'all 0.3s ease'
+      };
+    }
+    return {};
+  };
+
+  const getSuggestionListStyle = () => {
+    if (isDarkMode) {
+      return {
+        background: 'transparent',
+        borderRadius: '12px',
+        padding: '1.5rem',
+        border: 'none',
+        boxShadow: 'none',
+        display: 'flex',
+        flexDirection: 'column' as const,
+        gap: '1.2rem',
+        margin: '1.5rem 0',
+        maxWidth: '800px',
+        width: '100%'
+      };
+    }
+    return {};
   };
 
   const handleAnalyzeData = async (format: 'csv' | 'json') => {
@@ -156,23 +213,23 @@ const AI = () => {
                 {aiAnalysis && (
                   <div className="ai-results">
                     <Heading level={2} className="ai-card-insight-title">Your Personalized Financial Insights</Heading>
-                    <div className="ai-suggestion-list">
+                    <div className="ai-suggestion-list" style={getSuggestionListStyle()}>
                       {aiAnalysis.suggestions.map((suggestion, index) => (
-                        <div key={index} className="ai-suggestion-card">
+                        <div key={index} className="ai-suggestion-card" style={getSuggestionCardStyle()}>
                           <span className="ai-card-emoji">💡</span> 
                           <b>Suggestion {index + 1}:</b> {suggestion}
                         </div>
                       ))}
                       
                       {aiAnalysis.question && (
-                        <div className="ai-suggestion-card">
+                        <div className="ai-suggestion-card" style={getSuggestionCardStyle()}>
                           <span className="ai-card-emoji">❓</span> 
                           <b>Question:</b> {aiAnalysis.question}
                         </div>
                       )}
                       
                       {aiAnalysis.encouragement && (
-                        <div className="ai-suggestion-card">
+                        <div className="ai-suggestion-card" style={getSuggestionCardStyle()}>
                           <span className="ai-card-emoji">🎉</span> 
                           <b>Encouragement:</b> {aiAnalysis.encouragement}
                         </div>
@@ -196,16 +253,16 @@ const AI = () => {
                 {!aiServiceHealth.ollamaAvailable && !isLoading && (
                   <div className="fallback-tips">
                     <Heading level={2} className="ai-card-insight-title">General Financial Tips</Heading>
-                    <div className="ai-suggestion-list">
-                      <div className="ai-suggestion-card">
+                    <div className="ai-suggestion-list" style={getSuggestionListStyle()}>
+                      <div className="ai-suggestion-card" style={getSuggestionCardStyle()}>
                         <span className="ai-card-emoji">💡</span> 
                         <b>Tip 1:</b> Try the 50/30/20 rule: 50% for needs, 30% for wants, and 20% for savings and debt repayment.
                       </div>
-                      <div className="ai-suggestion-card">
+                      <div className="ai-suggestion-card" style={getSuggestionCardStyle()}>
                         <span className="ai-card-emoji">💡</span> 
                         <b>Tip 2:</b> Track your expenses regularly to identify spending patterns and areas for improvement.
                       </div>
-                      <div className="ai-suggestion-card">
+                      <div className="ai-suggestion-card" style={getSuggestionCardStyle()}>
                         <span className="ai-card-emoji">📊</span> 
                         <b>Insight:</b> Start with small financial goals to build momentum and confidence in your budgeting journey.
                       </div>
@@ -440,10 +497,56 @@ const AI = () => {
           color: #ffffff !important;
         }
         
+        /* Dark mode for AI suggestion cards - Higher specificity */
         .dark-mode .ai-suggestion-card {
-          background: #1e293b !important;
-          border-color: #374151 !important;
+          background: transparent !important;
+          border: 2px solid #475569 !important;
           color: #ffffff !important;
+          box-shadow: none !important;
+          transition: all 0.3s ease !important;
+        }
+        
+        .dark-mode .ai-dashboard-content .ai-suggestion-card,
+        .dark-mode .fallback-tips .ai-suggestion-card,
+        .dark-mode .ai-results .ai-suggestion-card {
+          background: transparent !important;
+          border: 2px solid #475569 !important;
+          color: #ffffff !important;
+          box-shadow: none !important;
+        }
+        
+        .dark-mode .ai-suggestion-list {
+          background: transparent !important;
+          border-radius: 12px !important;
+          padding: 1.5rem !important;
+          border: none !important;
+          box-shadow: none !important;
+        }
+        
+        .dark-mode .ai-suggestion-card:hover {
+          background: rgba(71, 85, 105, 0.1) !important;
+          border-color: #64748b !important;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(71, 85, 105, 0.15) !important;
+        }
+        
+        /* Force all child elements to inherit dark blue styling */
+        .dark-mode .ai-suggestion-card *,
+        .dark-mode .ai-suggestion-card b,
+        .dark-mode .ai-suggestion-card span,
+        .dark-mode .ai-suggestion-card .ai-card-emoji,
+        .dark-mode .ai-dashboard-content .ai-suggestion-card *,
+        .dark-mode .fallback-tips .ai-suggestion-card *,
+        .dark-mode .ai-results .ai-suggestion-card * {
+          color: #ffffff !important;
+        }
+        
+        /* Override any competing background styles */
+        body.dark-mode .ai-suggestion-card,
+        html.dark-mode .ai-suggestion-card,
+        .dark-mode .ai-content .ai-suggestion-card {
+          background: transparent !important;
+          border: 2px solid #475569 !important;
         }
         
         .dark-mode .analysis-controls {
@@ -541,6 +644,7 @@ const AI = () => {
           min-height: 60vh;
         }
 
+        /* Specific text color rules for dark mode */
         .dark-mode .ai-container {
           color: #ffffff;
         }
@@ -549,32 +653,42 @@ const AI = () => {
           color: #ffffff !important;
         }
         
-        /* Force all text to be white in dark mode */
-        .dark-mode * {
+        .dark-mode .ai-card-title,
+        .dark-mode .ai-card-insight-title,
+        .dark-mode .analysis-controls p,
+        .dark-mode .default-description {
           color: #ffffff !important;
         }
         
-        .dark-mode p,
-        .dark-mode span,
-        .dark-mode div,
-        .dark-mode b,
-        .dark-mode strong,
-        .dark-mode em,
-        .dark-mode i {
+        /* Remove overly broad rules that conflict with card styling */
+        .dark-mode .ai-card-title,
+        .dark-mode .ai-card-insight-title,
+        .dark-mode .analysis-controls p,
+        .dark-mode .default-description,
+        .dark-mode .privacy-warning p,
+        .dark-mode .error-message p,
+        .dark-mode .loading-message p,
+        .dark-mode .service-warning p {
           color: #ffffff !important;
         }
         
-        .dark-mode .ai-suggestion-card *,
-        .dark-mode .ai-suggestion-card p,
-        .dark-mode .ai-suggestion-card span,
-        .dark-mode .ai-suggestion-card b {
+        .dark-mode .fallback-tips .ai-suggestion-card {
+          background: transparent !important;
+          border: 2px solid #475569 !important;
           color: #ffffff !important;
+          box-shadow: none !important;
         }
         
-        .dark-mode .fallback-tips *,
-        .dark-mode .fallback-tips p,
-        .dark-mode .fallback-tips span,
-        .dark-mode .fallback-tips b {
+        .dark-mode .fallback-tips .ai-suggestion-card:hover {
+          background: rgba(71, 85, 105, 0.1) !important;
+          border-color: #64748b !important;
+        }
+        
+        /* Ensure fallback tips inherit styling */
+        .dark-mode .fallback-tips .ai-suggestion-card *,
+        .dark-mode .fallback-tips .ai-suggestion-card b,
+        .dark-mode .fallback-tips .ai-suggestion-card span,
+        .dark-mode .fallback-tips .ai-suggestion-card .ai-card-emoji {
           color: #ffffff !important;
         }
         

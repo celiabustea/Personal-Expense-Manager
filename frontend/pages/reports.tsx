@@ -322,6 +322,52 @@ const ReportsContent: React.FC<ReportsContentProps> = ({
           </>
         )}
       </div>
+      
+      <style jsx>{`
+        /* Ensure all components have hover float effects */
+        .reports-container > * {
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .reports-container > *:hover {
+          transform: translateY(-4px);
+        }
+        
+        /* Enhanced hover effects for specific sections */
+        .reports-container div[style*="display:flex"]:hover {
+          transform: translateY(-3px);
+        }
+        
+        .reports-container div[style*="background"]:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Empty state hover enhancement */
+        .reports-container div[style*="minHeight: '340px'"]:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Month selector container hover */
+        .reports-container div[style*="gap:'1.5rem'"]:hover {
+          transform: translateY(-3px);
+        }
+        
+        /* Loading text hover */
+        .reports-container .loading-text:hover {
+          transform: translateY(-2px);
+        }
+        
+        /* Dark mode hover effects */
+        :global(.dark-mode) .reports-container div[style*="background"]:hover {
+          box-shadow: 0 8px 20px rgba(71, 85, 105, 0.2);
+        }
+        
+        :global(.dark-mode) .reports-container div[style*="minHeight: '340px'"]:hover {
+          box-shadow: 0 10px 25px rgba(71, 85, 105, 0.2);
+        }
+      `}</style>
     </PageLayout>
   );
 };
