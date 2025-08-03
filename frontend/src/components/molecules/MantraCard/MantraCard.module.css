@@ -77,32 +77,30 @@
   font-style: italic;
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .mantraCard {
-    background: white !important;
-    border-color: #e5e7eb;
-    border-left: 4px solid #1e40af;
-    color: #1e293b;
-  }
+/* Dark mode support - use class-based dark mode instead of media query */
+:global(.dark-mode) .mantraCard {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  border-left: 4px solid #3b82f6 !important;
+  color: #f8fafc !important;
+}
 
-  .mantraCardSuccess,
-  .mantraCardWarning,
-  .mantraCardCaution,
-  .mantraCardNeutral,
-  .mantraCardMotivation {
-    background: white !important;
-    border-color: #e5e7eb;
-    border-left: 4px solid #1e40af;
-  }
+:global(.dark-mode) .mantraCardSuccess,
+:global(.dark-mode) .mantraCardWarning,
+:global(.dark-mode) .mantraCardCaution,
+:global(.dark-mode) .mantraCardNeutral,
+:global(.dark-mode) .mantraCardMotivation {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  border-left: 4px solid #3b82f6 !important;
+}
 
-  .mantraCardTitle {
-    color: #1e293b;
-  }
+:global(.dark-mode) .mantraCardTitle {
+  color: #f8fafc !important;
+}
 
-  .mantraCardText {
-    color: #1e293b;
-  }
+:global(.dark-mode) .mantraCardText {
+  color: #f8fafc !important;
 }
 
 /* Responsive design */

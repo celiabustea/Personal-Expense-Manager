@@ -6,6 +6,7 @@ import { store } from '../src/store';
 import { DarkModeProvider } from '../src/contexts/DarkModeContext';
 import { AuthProvider } from '../src/contexts/AuthContext';
 import '../src/styles/main.css';
+import '../src/styles/pages/Login.css';
 import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import LoadingPage from '../src/components/organisms/LoadingPage/LoadingPage';
